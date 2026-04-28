@@ -1,0 +1,4 @@
+agent-framework
+pydantic
+azure-identity
+python-dotenv
