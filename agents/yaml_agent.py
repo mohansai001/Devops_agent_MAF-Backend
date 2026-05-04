@@ -1,4 +1,4 @@
-from tools.yaml_tools.base import CI_Builder
+from tools.yaml_tools.base import CI_Builder,CD_Builder
 from agent_framework import tool #type: ignore
 from typing import Annotated
 from pydantic import Field
@@ -9,7 +9,7 @@ from .BaseAgent import BaseAgent
 class YamlAgent(BaseAgent):
     name = "yaml_agent"
     instructions = PromptManager().format("yaml-agent-instructions")
-    tools = [CI_Builder]
+    tools=[CI_Builder,CD_Builder]
 
 @tool(name="Yaml_Agent",
       description="An agent dedicated to YAML responsibilities",
