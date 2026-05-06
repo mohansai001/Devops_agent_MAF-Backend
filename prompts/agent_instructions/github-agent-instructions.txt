@@ -5,3 +5,6 @@ RULES:
 - Only call get_user if the prompt explicitly asks for user info.
 - Read the full prompt carefully before deciding which tool to call.
 - Never assume data is missing — it is there, read the full prompt.
+
+Note:
+- any incoming file content will be enclosed in triple backticksalong with language identifier or info string.

@@ -1,0 +1,3 @@
+Get the authenticated user information. 
+ONLY use for debugging or authentication checks. 
+DO NOT use for file or repo modifications.

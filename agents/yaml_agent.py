@@ -2,19 +2,21 @@ from tools.yaml_tools.base import CI_Builder
 from agent_framework import tool #type: ignore
 from typing import Annotated
 from pydantic import Field
-from utils.prompt_manager import PromptManager
+from utils.prompt_manager_v2 import AgentDescriptionPrompt, AgentInstructionPrompt, ToolFieldsPrompt
 from .BaseAgent import BaseAgent
 
 
 class YamlAgent(BaseAgent):
     name = "yaml_agent"
-    instructions = PromptManager().format("yaml-agent-instructions")
+    instructions = str(AgentInstructionPrompt("yaml-agent-instructions"))
     tools = [CI_Builder]
 
+_yaml_agent_field = ToolFieldsPrompt("yaml-agent-field-description")
+
 @tool(name="Yaml_Agent",
-      description="An agent dedicated to YAML responsibilities",
+      description=str(AgentDescriptionPrompt("yaml-agent-description")),
       approval_mode="never_require")
-async def yaml_agent(prompt: Annotated[str, Field(description="Full prompt including original request and any previous context")]):
+async def yaml_agent(prompt: Annotated[str, Field(description = _yaml_agent_field.get("prompt"))]):
     return await YamlAgent.get_instance().run(prompt)
 
 

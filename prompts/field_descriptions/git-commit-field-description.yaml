@@ -1,0 +1,5 @@
+repo: "Full repository name in 'owner/repo' format. Example: 'Hari-var/test_repo'. Never just 'repo'."
+file_path: "File path relative to repo root. Example: 'docs/README.md'. Never a .git path."
+commit_message: "The git commit message. Example: 'Add README with dummy content'"
+branch: "Exact branch name to commit to. Example: 'feature/add-readme' or 'main'."
+content: "The full file content as a plain string. Must never be empty if adding or updating a file."

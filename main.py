@@ -13,6 +13,7 @@ content= """
         - Created for testing purposes"""
 
 from agents.co_ordinator_agent import CoOrdinatorAgent
+from agents.github_agent import GithubAgent
 import asyncio
 
 async def main():
@@ -23,11 +24,11 @@ async def main():
         - Repository: Hari-var/test_repo
         - Branch: feature/add-readme
         - File path: docs/README.md
-        - Commit message: "Add README with dummy content"
+        - Commit message: "Add README with given content"
 
         - content: {content}
 
-        Instructions:
+        - Instructions:
         1. Create a new branch from main called "feature/add-readme" if it does not exist.
         2. Add the file at the specified path.
         3. Commit the file with the given message.
