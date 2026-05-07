@@ -140,7 +140,7 @@ class ToolFieldsPrompt:
 if __name__ == "__main__":
     # Load and render an instruction prompt
     # Reads from: prompts/instructions/summarize.txt
-    instruction = ToolDescriptionPrompt("git-get-user-tool-description")
+    instruction = ToolFieldsPrompt("tf-agent-field-description")
     # print(instruction.__str__())  # Raw template
 
     # # Load and render a description prompt
@@ -149,4 +149,4 @@ if __name__ == "__main__":
     # print(description.render(product_name="Widget Pro", price="$49"))
 
     # Access raw template string
-    print(str(instruction))
+    print(instruction.get("resources"))
