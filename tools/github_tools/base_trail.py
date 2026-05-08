@@ -29,7 +29,7 @@ _git_commit_fields = ToolFieldsPrompt("git-commit-field-description")
     description=str(ToolDescriptionPrompt("git-commit-tool-description")),
     approval_mode="never_required"
 )
-def commit_changes(
+def commit_files(
     repo: Annotated[str, Field(description = _git_commit_fields.get("repo"))],
     file_path: Annotated[str, Field(description = _git_commit_fields.get("file_path"))],
     commit_message: Annotated[str, Field(description = _git_commit_fields.get("commit_message"))],

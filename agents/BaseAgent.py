@@ -3,6 +3,8 @@ from utils.clientConnection import get_client
 from agent_framework.exceptions import ChatClientException #type: ignore
 import asyncio
 from utils.config import Base_agent_config as baconfig
+import inspect
+from pprint import pformat
 # from agent_framework.middleware import SecurityAgentMiddleware #type: ignore
 
 class BaseAgent:
@@ -67,7 +69,7 @@ class BaseAgent:
         print(f"\n{'='*60}")
         print(f"[{self.name}] Session Context Before Clear")
         print(f"{'='*60}")
-
+        tools_data = {}
         state = self._session.state
 
         for provider in self.context_providers:
@@ -105,3 +107,87 @@ class BaseAgent:
                         print(f"    [{ctype}]: {str(content)}")
 
         print(f"\n{'='*60}\n")
+
+
+
+    async def describe_tools(self) -> dict:
+        """Return detailed metadata for all registered tools."""
+
+        tools_data = {}
+
+        attr_names = [
+            "_input_schema",
+            "required",
+            "title",
+            "description",
+            "approval_mode",
+            "name",
+        ]
+
+        for index, tool_fn in enumerate(self.tools):
+
+            tool_name = getattr(
+                tool_fn,
+                "name",
+                getattr(tool_fn, "__name__", f"tool_{index}")
+            )
+
+            tool_info = {
+                "metadata": {},
+                "attributes": {},
+            }
+
+            # -------------------------
+            # __ai_function__ metadata
+            # -------------------------
+            meta = getattr(tool_fn, "__ai_function__", None)
+
+            if meta:
+
+                # Dict metadata
+                if isinstance(meta, dict):
+                    tool_info["metadata"] = {
+                        key: pformat(value)
+                        for key, value in meta.items()
+                    }
+
+                # Object metadata
+                else:
+                    try:
+                        tool_info["metadata"] = {
+                            key: pformat(value)
+                            for key, value in vars(meta).items()
+                        }
+                    except Exception as e:
+                        tool_info["metadata"] = {
+                            "error": str(e)
+                        }
+
+            # -------------------------
+            # Selected object attributes
+            # -------------------------
+            for attr_name in attr_names:
+
+                try:
+                    value = getattr(tool_fn, attr_name)
+
+                    if inspect.ismethod(value):
+                        tool_info["attributes"][attr_name] = "<method>"
+
+                    elif inspect.isfunction(value):
+                        tool_info["attributes"][attr_name] = "<function>"
+
+                    elif inspect.iscoroutinefunction(value):
+                        tool_info["attributes"][attr_name] = "<async function>"
+
+                    else:
+                        tool_info["attributes"][attr_name] = pformat(value)
+
+                except Exception as e:
+                    tool_info["attributes"][attr_name] = f"<ERROR: {e}>"
+
+            tools_data[tool_name] = tool_info
+
+        return tools_data
+
+
