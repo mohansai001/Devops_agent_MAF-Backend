@@ -1,4 +1,4 @@
-from tools.tf_tools.base import TF_Builder
+from tools.tf_tools.base import TF_Module_builder
 from agent_framework import tool 
 from typing import Annotated
 from pydantic import Field
@@ -9,7 +9,7 @@ from .BaseAgent import BaseAgent
 class TfAgent(BaseAgent):
     name = "terraform_agent"
     instructions = str(AgentInstructionPrompt("tf-agent-instructions"))
-    tools=[TF_Builder]
+    tools=[TF_Module_builder]
 
 @tool(name="terraform_agent",
       description=str(AgentDescriptionPrompt("tf-agent-description")),

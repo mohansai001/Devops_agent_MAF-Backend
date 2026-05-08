@@ -1,8 +1,6 @@
 from agent_framework import tool #type: ignore
 from typing import Annotated
 from pydantic import Field
-
-
 from agent_framework import tool #type: ignore
 from typing import Annotated
 from pydantic import Field
@@ -13,10 +11,105 @@ from github import Github, Auth
 from utils.clientConnection import client
 import asyncio
 import os
+from utils.config import AZURE_AI_API_KEY,github_token
+from openai import AzureOpenAI
 
-auth = Auth.Token(GITHUB_TOKEN)
+auth = Auth.Token(github_token)
 g = Github(auth=auth)
 REPO_OWNER = "RAGHAVENDRA-VAM"
+
+
+
+
+
+def get_tf_yaml_scripts(text):
+    try:
+        endpoint = "https://devops-maf1.openai.azure.com"
+        deployment = "gpt-4.1-nano"
+        subscription_key = AZURE_AI_API_KEY
+        api_version = "2024-12-01-preview"
+        # print("Azure configuration:\n", f"Endpoint: {endpoint}\nDeployment: {deployment}\nAPI Version: {api_version}")
+        if not subscription_key:
+            print("Error: AZURE_OPENAI_KEY not found in environment variables")
+            return "Error: AZURE_OPENAI_KEY not found in environment variables"
+ 
+        client = AzureOpenAI(
+            api_version=api_version,
+            azure_endpoint=endpoint,
+            api_key=subscription_key,
+        )
+        print("Azure client initialized successfully.\n",client)
+ 
+        response = client.chat.completions.create(
+            messages=[
+                {
+                    "role": "system",
+                    "content": "You are a helpful assistant.",
+                },
+                {
+                    "role": "user",
+                    "content": text,
+                }
+            ],
+            max_tokens=1000,
+            temperature=0.7,
+            model=deployment
+        )
+        print("Azure response for Terraform yml script:\n",response.choices[0].message.content)
+        return response.choices[0].message.content
+    except Exception as e:
+        AI_ERROR_COUNT.labels(model='azure', error_type=type(e).__name__).inc()
+        print(f"Azure Error: {str(e)}")
+        return f"Azure Error: {str(e)}"
+ 
+
+
+def get_azure_response(yaml_template,repo_name):
+    print("Inside get_azure_response")
+    instructions=f"""You are a Senior DevOps Engineer. 
+Your job is to take a CI/CD pipeline YAML template {yaml_template} and generate a complete, fully working pipeline script.
+- Replace placeholders with real, working values
+- Use '{repo_name}' as the repository name wherever needed
+- Output ONLY valid YAML, no explanations or markdown"""
+    try:
+        endpoint = "https://defaultresourcegroup-ccan-resource-0475.cognitiveservices.azure.com/"
+        deployment = "gpt-4.1-mini-312634"
+        subscription_key = AZURE_AI_API_KEY
+        api_version = "2024-12-01-preview"
+        print("Azure configuration:\n", f"Endpoint: {endpoint}\nDeployment: {deployment}\nAPI Version: {api_version}")
+        if not subscription_key:
+            return "Error: AZURE_OPENAI_KEY not found in environment variables"
+ 
+        client = AzureOpenAI(
+            api_version=api_version,
+            azure_endpoint=endpoint,
+            api_key=subscription_key,
+        )
+        print("Azure client initialized successfully.\n",client)
+ 
+        response = client.chat.completions.create(
+            messages=[
+                {
+                    "role": "system",
+                    "content": "You are a helpful assistant.",
+                },
+                {
+                    "role": "user",
+                    "content": instructions,
+                }
+            ],
+            max_tokens=1000,
+            temperature=0.7,
+            model=deployment
+        )
+        print("Azure response:\n", response)
+        return response.choices[0].message.content
+    except Exception as e:
+        AI_ERROR_COUNT.labels(model='azure', error_type=type(e).__name__).inc()
+        print(f"Azure Error: {str(e)}")
+        return f"Azure Error: {str(e)}"
+ 
+
 
 
 def create_yaml_scripts(yaml_template,repo_name):
@@ -138,3 +231,20 @@ async def CD_Builder(target: Annotated[str, Field(description="The target enviro
         "Add CD pipeline",
         "main"
     )
+   
+
+@tool(name="TF_Builder", description="Builds a Terraform yaml based on the given requirements", approval_mode="never_require")
+async def TF_Builder(cloud_provider: Annotated[str, Field(description="The cloud provider to be used for the infrastructure (e.g., 'azure', 'aws', 'gcp')")],
+                     resource_group: Annotated[str, Field(description="The resource group to be used for the infrastructure")],
+                     resources: Annotated[str, Field(description="The resources to be provisioned in the infrastructure")],
+                     repo_name: Annotated[str, Field(description="The repository name")]):
+   # Assuming Cloud provider, Resource group, Resources and Repository name comes from the orchestrator agent
+    print("Called TF_Builder agent...")
+    prompt = f"You are a senior Devops Platform Engineer. Generate a production grade Terraform configuration yml for {cloud_provider} with the following details:\n\n"
+    prompt += f"Resource Group: {resource_group}\n"
+    prompt += f"Resources: {resources}\n"
+    prompt += f"Repository: {repo_name}\n"
+
+    response = await get_tf_yaml_scripts(prompt)
+    print("Response:\n",response)
+    return f"TASK COMPLETED: {response}"

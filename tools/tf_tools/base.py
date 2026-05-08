@@ -139,8 +139,8 @@ def create_terraform_files_dict(files_to_push):
     return files_to_push
 
 """"Version 3"""
-@tool(name="TF_builder", description="Builds Terraform modules by understanding the requirements such as the desired infrastructure, cloud provider, and specific configurations.", approval_mode="never_require")
-async def TF_Builder(
+@tool(name="TF_Module_builder", description="Builds Terraform modules by understanding the requirements such as the desired infrastructure, cloud provider, and specific configurations.", approval_mode="never_require")
+async def TF_Module_builder(
     repo_name: Annotated[str, Field(description="The name of the repository for which the infrastructure should be provisioned")],
     cloud_provider: Annotated[str, Field(description="The cloud provider to be used for the infrastructure (e.g., 'azure', 'aws', 'gcp')")],
     Resources: Annotated[str, Field(description="""ALL resources to be provisioned in a SINGLE JSON structure. Example:
