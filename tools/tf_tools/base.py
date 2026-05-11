@@ -12,8 +12,10 @@ from utils.config import github_token,model_subscription_key
 from github import Github, Auth
 from ..yaml_tools.base import github_push_files
 from openai import AzureOpenAI
+from utils.logger import get_logger
 
 GITHUB_TOKEN = github_token
+logger = get_logger(__name__)
 
 from utils.clientConnection import get_client
 from utils.config import Base_agent_config
@@ -27,6 +29,7 @@ REPO_OWNER = "RAGHAVENDRA-VAM"
 from ..yaml_tools.content_generator import create_yaml_scripts, clean_yaml_output
 
 def get_azure_response(content, file_name, cloud_provider, resource_group_dict, resource):
+    logger.info("[get_azure_response] Inside azure call.....")
     print("Inside azure call.....")
     
     # Convert dictionaries to strings for the prompt if needed
@@ -58,47 +61,48 @@ def get_azure_response(content, file_name, cloud_provider, resource_group_dict, 
     4. Return only the updated Terraform code without any additional explanation.
     """    
     try:
-      response=create_yaml_scripts(text)
-      return response
-        
+        response = create_yaml_scripts(text)
+        logger.info("[get_azure_response] Azure AI response received.")
+        print("[get_azure_response] Azure AI response received.")
+        return response
     except Exception as e:
+        logger.error(f"[get_azure_response] Azure Error: {str(e)}", exc_info=True)
         print(f"Azure Error: {str(e)}")
         return f"Azure Error: {str(e)}"
 
 def github_read_contents(path, repo_owner=REPO_OWNER, repo_name="Terraform_modules"):
-    """Read file content from GitHub repository"""
+    logger.info(f"[github_read_contents] Reading content from path: {path}")
     try:
         print(f"Reading content from path: {path}")
         repo = g.get_repo(f"{repo_owner}/{repo_name}")
         content = repo.get_contents(path)
         decoded_content = content.decoded_content.decode()
+        logger.info(f"[github_read_contents] Successfully read content from {path}")
         print(f"Successfully read content from {path}")
         return decoded_content
     except Exception as e:
+        logger.error(f"[github_read_contents] Error reading GitHub file content from {path}: {e}", exc_info=True)
         print(f"Error reading GitHub file content from {path}: {e}")
         return None
 
 def github_find_folder(cloud, resource_type, repo_owner=REPO_OWNER, repo_name="Terraform_modules"):
-    """Find terraform module files in GitHub repo with path modules/{cloud}/{resource_type}"""
+    logger.info(f"[github_find_folder] Searching for modules/{cloud}/{resource_type}")
     try:
         repo = g.get_repo(f"{repo_owner}/{repo_name}")
         tree = repo.get_git_tree("HEAD", recursive=True).tree
-
         target_path = f"modules/{cloud}/{resource_type}"
-        
         found_paths = []
         for item in tree:
             if item.path.startswith(target_path):
-                # Only include files (blob type), not folders (tree type)
                 if item.type == 'blob':
                     found_paths.append(item.path)
-
+        logger.info(f"[github_find_folder] Total module files found for {cloud}/{resource_type}: {len(found_paths)}")
         print(f"Total module files found for {cloud}/{resource_type}: {len(found_paths)}")
         print("Found files:", found_paths)
         print("=" * 30)
         return found_paths
-        
     except Exception as e:
+        logger.error(f"[github_find_folder] Error searching GitHub repo: {e}", exc_info=True)
         print(f"Error searching GitHub repo: {e}")
         return []
 
@@ -131,8 +135,11 @@ async def TF_Module_builder(
                                                   }
                                                 }
                                                 Resource names should be lowercase with underscores.""")]):
+    logger.info("[TF_Module_builder] Building Terraform configuration...")
     print("Building Terraform configuration...")
+    logger.info(f"[TF_Module_builder] Cloud Provider: {cloud_provider}")
     print("Cloud Provider:", cloud_provider)
+    logger.info(f"[TF_Module_builder] Resources: {Resources}")
     print("Resources:", Resources)
     
     try:
@@ -142,6 +149,7 @@ async def TF_Module_builder(
         else:
             resources_dict = Resources
 
+        logger.info(f"[TF_Module_builder] Parsed Resources Dictionary: {resources_dict}")
         print("Parsed Resources Dictionary:", resources_dict)
 
         # Extract resource group information
@@ -152,7 +160,9 @@ async def TF_Module_builder(
             k: v for k, v in resources_dict.items() if k != "resource_group"
         }
 
+        logger.info(f"[TF_Module_builder] Resource Group: {resource_group_dict}")
         print("Resource Group:", resource_group_dict)
+        logger.info(f"[TF_Module_builder] Other Resources: {other_resources_dict}")
         print("Other Resources:", other_resources_dict)
 
         # Dictionary to store all files to be pushed
@@ -161,33 +171,39 @@ async def TF_Module_builder(
 
         # Process each resource type
         for resource_type, resource_config in other_resources_dict.items():
+            logger.info(f"[TF_Module_builder] === Processing {resource_type} ===")
             print(f"\n=== Processing {resource_type} ===")
             
             # Get all file paths for this resource type
             paths = github_find_folder(cloud_provider, resource_type)
             
             if not paths:
+                logger.warning(f"[TF_Module_builder] No modules found for {resource_type}")
                 print(f"No modules found for {resource_type}")
                 continue
 
             # Process each file for this resource type
             for path in paths:
                 try:
+                    logger.info(f"[TF_Module_builder] Processing path: {path}")
                     print(f"Processing path: {path}")
                     
                     # Read file content
                     content = github_read_contents(path)
                     if not content:
+                        logger.warning(f"[TF_Module_builder] No content found for {path}")
                         print(f"No content found for {path}")
                         continue
 
                     # Extract file information
                     file_name = path.split("/")[-1]  # e.g., "main.tf"
                     
+                    logger.info(f"[TF_Module_builder] Processing file: {file_name}")
                     print(f"Processing file: {file_name}")
 
                     # Process different file types
                     if file_name == "variables.tf":
+                        logger.info(f"[TF_Module_builder] Calling Azure AI for {file_name}")
                         print(f"Calling Azure AI for {file_name}")
                         
                         try:
@@ -204,30 +220,38 @@ async def TF_Module_builder(
                                 target_path = f"{repo_name}/{resource_type}/{file_name}"
                                 files_to_push[target_path] = updated_content
                                 
+                                logger.info(f"[TF_Module_builder] Prepared {target_path} for deployment (processed by AI)")
                                 print(f"Prepared {target_path} for deployment (processed by AI)")
                             else:
+                                logger.warning(f"[TF_Module_builder] Azure AI returned error for {file_name}: {updated_content}")
                                 print(f"Azure AI returned error for {file_name}: {updated_content}")
                                 
                         except Exception as azure_error:
+                            logger.error(f"[TF_Module_builder] Error calling Azure AI for {file_name}: {azure_error}", exc_info=True)
                             print(f"Error calling Azure AI for {file_name}: {azure_error}")
                             continue
                             
                     elif file_name in ["main.tf", "outputs.tf"]:
+                        logger.info(f"[TF_Module_builder] Directly pushing {file_name} without AI processing")
                         print(f"Directly pushing {file_name} without AI processing")
                         
                         # Create proper folder structure: repo-name/resource-type/file
                         target_path = f"{repo_name}/{resource_type}/{file_name}"
                         files_to_push[target_path] = content
                         
+                        logger.info(f"[TF_Module_builder] Prepared {target_path} for deployment (direct push)")
                         print(f"Prepared {target_path} for deployment (direct push)")
                         
                     elif file_name == "README.md":
+                        logger.info(f"[TF_Module_builder] Skipping {file_name} as it does not require processing")
                         print(f"Skipping {file_name} as it does not require processing")
                         
                     else:
+                        logger.warning(f"[TF_Module_builder] Skipping file: {file_name} (unknown file type)")
                         print(f"Skipping file: {file_name} (unknown file type)")
 
                 except Exception as file_error:
+                    logger.error(f"[TF_Module_builder] Error processing file {path}: {file_error}", exc_info=True)
                     print(f"Error processing file {path}: {file_error}")
                     import traceback
                     traceback.print_exc()
@@ -237,10 +261,12 @@ async def TF_Module_builder(
 
         # Push all files to the target repository
         if files_to_push:
+            logger.info(f"[TF_Module_builder] Pushing {len(files_to_push)} files to repository: {repo_name}")
             print(f"\nPushing {len(files_to_push)} files to repository: {repo_name}")
             
             # Display what will be pushed with proper folder structure
             for file_path in files_to_push.keys():
+                logger.info(f"[TF_Module_builder] File to be pushed: {file_path}")
                 print(f"  - {file_path}")
             
             try:
@@ -251,21 +277,27 @@ async def TF_Module_builder(
                     branch="main"
                 )
                 
+                logger.info(f"[TF_Module_builder] Successfully pushed all files to {repo_name}")
                 print(f"Successfully pushed all files to {repo_name}")
                 
             except Exception as push_error:
+                logger.error(f"[TF_Module_builder] Error pushing files to repository: {push_error}", exc_info=True)
                 print(f"Error pushing files to repository: {push_error}")
                 return f"ERROR: Failed to push files to repository - {str(push_error)}"
         else:
+            logger.info("[TF_Module_builder] No files to push")
             print("No files to push")
 
+        logger.info(f"[TF_Module_builder] TASK COMPLETED: Successfully generated and deployed Terraform configuration for {cloud_provider} with resources: {processed_resources}. Total files pushed to repository {repo_name}: {len(files_to_push)}")
         return f"TASK COMPLETED: Successfully generated and deployed Terraform configuration for {cloud_provider} with resources: {processed_resources}. Total files pushed to repository {repo_name}: {len(files_to_push)}"
 
     except json.JSONDecodeError as json_error:
+        logger.error(f"[TF_Module_builder] JSON parsing error: {json_error}", exc_info=True)
         print(f"JSON parsing error: {json_error}")
         return f"ERROR: Invalid JSON format in Resources parameter - {str(json_error)}"
     
     except Exception as e:
+        logger.error(f"[TF_Module_builder] Exception Received: {str(e)}", exc_info=True)
         print("Exception Received:", str(e))
         import traceback
         traceback.print_exc()

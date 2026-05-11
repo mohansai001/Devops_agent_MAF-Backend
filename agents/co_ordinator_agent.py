@@ -7,7 +7,7 @@ from agent_framework import InMemoryHistoryProvider #type: ignore
 
 class CoOrdinatorAgent(BaseAgent):
     name = "Co_ordinator"
-    debug_context = True
+    # debug_context = True
     instructions = str(AgentInstructionPrompt("co-ordinator-instructions"))
     tools = [yaml_agent, github_agent, terraform_agent]
     context_providers = [
