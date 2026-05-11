@@ -105,7 +105,6 @@ Your job is to take a CI/CD pipeline YAML template {yaml_template} and generate 
         print("Azure response:\n", response)
         return response.choices[0].message.content
     except Exception as e:
-        AI_ERROR_COUNT.labels(model='azure', error_type=type(e).__name__).inc()
         print(f"Azure Error: {str(e)}")
         return f"Azure Error: {str(e)}"
  
@@ -232,6 +231,26 @@ async def CD_Builder(target: Annotated[str, Field(description="The target enviro
         "main"
     )
    
+
+
+@tool(name="CD_builder", description="Builds a CD pipeline based on the given requirements", approval_mode="never_require")
+async def CD_Builder(target: Annotated[str, Field(description="The target environment for the CD pipeline")],
+                     techstack: Annotated[str, Field(description="The tech stack that is used to develop the application and in the repo")],
+                     repo_name: Annotated[str, Field(description="The repository name")],
+                     tool: Annotated[str, Field(description="The CI tool to use")]):
+   #Assuming Tech stack,tool, Repository name and Framework comes from the orchestrator agent
+   yaml_data=github_read_yaml_library()
+   paths = get_cicd_paths(yaml_data, tool, target=target)
+   cd_template=github_read_yaml_library(paths["cd"])
+   cd_script=create_yaml_scripts(cd_template, "Workflow-files")
+   github_push_files(
+        {f".github/workflows/{target}-cd.yml": cd_script},
+        repo_name,
+        "Add CD pipeline",
+        "main"
+    )
+
+
 
 @tool(name="TF_Builder", description="Builds a Terraform yaml based on the given requirements", approval_mode="never_require")
 async def TF_Builder(cloud_provider: Annotated[str, Field(description="The cloud provider to be used for the infrastructure (e.g., 'azure', 'aws', 'gcp')")],
