@@ -58,7 +58,6 @@ def get_tf_yaml_scripts(text):
         print("Azure response for Terraform yml script:\n",response.choices[0].message.content)
         return response.choices[0].message.content
     except Exception as e:
-        AI_ERROR_COUNT.labels(model='azure', error_type=type(e).__name__).inc()
         print(f"Azure Error: {str(e)}")
         return f"Azure Error: {str(e)}"
  
@@ -246,7 +245,7 @@ async def CD_Builder(target: Annotated[str, Field(description="The target enviro
    github_push_files(
         {f".github/workflows/{target}-cd.yml": cd_script},
         repo_name,
-        "Add CD pipeline",
+        "Added CD pipeline",
         "main"
     )
 
@@ -265,5 +264,12 @@ async def TF_Builder(cloud_provider: Annotated[str, Field(description="The cloud
     prompt += f"Repository: {repo_name}\n"
 
     response = await get_tf_yaml_scripts(prompt)
+    tf_repo_name="Workflow-files"
     print("Response:\n",response)
+    github_push_files(
+        {f".github/workflows/{tf_repo_name}-tf.yml": response},
+        repo_name,
+        "Added CD pipeline",
+        "main"
+    )
     return f"TASK COMPLETED: {response}"
