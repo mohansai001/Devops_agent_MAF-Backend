@@ -5,6 +5,9 @@ from typing import Annotated
 from pydantic import Field
 from tools.github_tools.base_trail import get_user, commit_files
 from utils.prompt_manager_v2 import AgentDescriptionPrompt, AgentInstructionPrompt, ToolFieldsPrompt
+from utils.logger import get_logger
+
+logger = get_logger(__name__)
 
 class GithubAgent(BaseAgent):
     name = "github_agent"
@@ -15,8 +18,21 @@ _git_agent_field = ToolFieldsPrompt("git-agent-field-description")
 
 @tool(name="Github_Agent", description=str(AgentDescriptionPrompt("github-agent-description")), approval_mode="never_require")
 async def github_agent(prompt: Annotated[str, Field(description = _git_agent_field.get("prompt"))]):
-    print(prompt)
-    return await GithubAgent.get_instance().run(prompt)
+    logger.info("[github_agent] Called with prompt.")
+    print("[github_agent] Called with prompt.")
+    logger.debug(f"[github_agent] Prompt: {prompt}")
+    print(f"[github_agent] Prompt: {prompt}")
+    try:
+        result = await GithubAgent.get_instance().run(prompt)
+        logger.info("[github_agent] Successfully generated GitHub agent output.")
+        print("[github_agent] Successfully generated GitHub agent output.")
+        logger.debug(f"[github_agent] Output: {result}")
+        print(f"[github_agent] Output: {result}")
+        return result
+    except Exception as e:
+        logger.error(f"[github_agent] Error occurred: {e}", exc_info=True)
+        print(f"[github_agent] Error occurred: {e}")
+        raise
 
 if __name__ == "__main__":
     import asyncio
