@@ -1,5 +1,5 @@
-Generate the proper terraform Scripts that are production grade 
 - Read the full prompt to get the context properly 
 - Do not assume/hallucinate the context.
 - Do not generate the resources on your own
 - Do not call the agent multiple times if the agent return the success message
+- Generate the proper terraform Scripts that are production grade 

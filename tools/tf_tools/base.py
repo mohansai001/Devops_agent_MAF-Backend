@@ -14,10 +14,17 @@ from ..yaml_tools.base import github_push_files
 from openai import AzureOpenAI
 
 GITHUB_TOKEN = github_token
-client = get_client()
+
+from utils.clientConnection import get_client
+from utils.config import Base_agent_config
+
+client = get_client(model=Base_agent_config.model, endpoint=Base_agent_config.AI_endpoint)
+
 auth = Auth.Token(GITHUB_TOKEN)
 g = Github(auth=auth)
 REPO_OWNER = "RAGHAVENDRA-VAM"
+
+from ..yaml_tools.content_generator import create_yaml_scripts, clean_yaml_output
 
 def get_azure_response(content, file_name, cloud_provider, resource_group_dict, resource):
     print("Inside azure call.....")
@@ -49,47 +56,10 @@ def get_azure_response(content, file_name, cloud_provider, resource_group_dict, 
     2. Ensure the resource group is correctly referenced.
     3. Maintain proper Terraform syntax and best practices.
     4. Return only the updated Terraform code without any additional explanation.
-    """
-
-    # print("*" * 20)
-    # print("Azure prompt:\n", text)
-    # print("*" * 20)
-    
+    """    
     try:
-        endpoint = "https://devops-maf1.openai.azure.com/"
-        deployment = "gpt-4.1-nano"
-        subscription_key = model_subscription_key
-        api_version = "2024-12-01-preview"
-
-        if not subscription_key:
-            return "Error: AZURE_OPENAI_KEY not found in environment variables"
-
-        azure_client = AzureOpenAI(
-            api_version=api_version,
-            azure_endpoint=endpoint,
-            api_key=subscription_key,
-        )
-
-        response = azure_client.chat.completions.create(
-            messages=[
-                {
-                    "role": "system",
-                    "content": "You are a helpful Terraform expert assistant.",
-                },
-                {
-                    "role": "user",
-                    "content": text,
-                }
-            ],
-            max_tokens=10000,
-            temperature=0.7,
-            model=deployment
-        )
-
-        # print("Azure response:.................\n")
-        # print(response.choices[0].message.content)
-        # print("=" * 20)
-        return response.choices[0].message.content
+      response=create_yaml_scripts(text)
+      return response
         
     except Exception as e:
         print(f"Azure Error: {str(e)}")

@@ -9,7 +9,7 @@ from .BaseAgent import BaseAgent
 class YamlAgent(BaseAgent):
     name = "yaml_agent"
     instructions = str(AgentInstructionPrompt("yaml-agent-instructions"))
-    tools = [CI_Builder,TF_Builder]
+    tools = [CI_Builder,CD_Builder,TF_Builder]
 
 _yaml_agent_field = ToolFieldsPrompt("yaml-agent-field-description")
 
@@ -17,6 +17,7 @@ _yaml_agent_field = ToolFieldsPrompt("yaml-agent-field-description")
       description=str(AgentDescriptionPrompt("yaml-agent-description")),
       approval_mode="never_require")
 async def yaml_agent(prompt: Annotated[str, Field(description = _yaml_agent_field.get("prompt"))]):
+    print("called yaml agent")
     return await YamlAgent.get_instance().run(prompt)
 
 

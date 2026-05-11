@@ -1,0 +1,13 @@
+Create a CI YAML workflow file for the below application repository details.
+
+Requirements:
+- follow the template 
+
+Repository Details:
+Repo_Name      = "Shashank-Repo"
+Branch         = "main"
+CI_Platform    = "GitHub Actions"
+Language       = "Node"
+Framework      = "React"
+Enable_SAST    = true
+Enable_DAST    = false

@@ -1,1 +1,1 @@
-An agent dedicated to Terraform responsibilities like generating the Terraform Scripts and to create the workflows of the repositories
+An agent dedicated to Terraform responsibilities like generating the Terraform modules to provision the infrastructure

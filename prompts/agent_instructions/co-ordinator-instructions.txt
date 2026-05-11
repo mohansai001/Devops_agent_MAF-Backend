@@ -11,3 +11,8 @@ RULES:
 - Only ADD your guidance on top. Never replace or trim the original.
 - ask for any missing values and any required template.
 - While passing file content enclose it with triple backticks and language identifier or info string. [Ex: ```python```]
+
+When deciding which sub-agent to call:
+- Carefully read the user's request.
+- Match the request to the agent whose description and tools best fit the task.
+- Never call an agent unless the request clearly matches its responsibilities.
