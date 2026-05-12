@@ -9,9 +9,9 @@ import os
 import json
 from utils.clientConnection import get_client
 from utils.config import github_token,model_subscription_key
-from github import Github, Auth
+from github import Github, Auth #type: ignore
 from ..yaml_tools.base import github_push_files
-from openai import AzureOpenAI
+from openai import AzureOpenAI #type:ignore
 from utils.logger import get_logger
 
 GITHUB_TOKEN = github_token
@@ -272,6 +272,7 @@ async def TF_Module_builder(
             try:
                 commit_message = f"Add Terraform modules for {', '.join(processed_resources)} on {cloud_provider}"
                 github_push_files(
+                    repo_name=repo_name,
                     files_to_push=files_to_push,
                     commit_message=commit_message,
                     branch="main"

@@ -1,22 +1,22 @@
-from fastapi import FastAPI, WebSocket, WebSocketDisconnect
+from fastapi import APIRouter, WebSocket, WebSocketDisconnect #type: ignore
 
-from fastapi.middleware.cors import CORSMiddleware
+from fastapi.middleware.cors import CORSMiddleware #type: ignore
 
 import asyncio
 
 from typing import List
- 
-app = FastAPI()
- 
+
+router = APIRouter()
+
 # Allow React frontend connection
 
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],  # Replace with frontend URL in production
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+# router.add_middleware(
+#     CORSMiddleware,
+#     allow_origins=["*"],  # Replace with frontend URL in production
+#     allow_credentials=True,
+#     allow_methods=["*"],
+#     allow_headers=["*"],
+# )
  
  
 class ConnectionManager:
@@ -46,7 +46,7 @@ manager = ConnectionManager()
  
 # WebSocket endpoint
 
-@app.websocket("/ws/logs")
+@router.websocket("/ws/logs")
 async def websocket_logs(websocket: WebSocket):
     await manager.connect(websocket)
     try:
@@ -59,7 +59,7 @@ async def websocket_logs(websocket: WebSocket):
  
 # Example API endpoint to trigger logs
 
-@app.get("/start-process")
+@router.get("/start-process")
 async def start_process():
     async def generate_logs():
         for i in range(1, 11):

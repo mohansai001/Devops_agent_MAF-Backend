@@ -14,6 +14,9 @@ async def get_all_triggered_records(db: Session) :
         return None
     return [item for item in result]
 
+async def get_triggered_record_by_id(db: Session, record_id: int) -> Union[ConfigDetails, None]:
+    return db.query(ConfigDetails).filter(ConfigDetails.id == record_id).first()
+
 import asyncio
 
 if __name__ == "__main__":

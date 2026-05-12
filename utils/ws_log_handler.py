@@ -1,6 +1,6 @@
 import logging
 import asyncio
-from utils.log_manager import manager
+from apis.routes.log_manager import manager
 
 class WebSocketLogHandler(logging.Handler):
     def emit(self, record):

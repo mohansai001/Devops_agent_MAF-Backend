@@ -7,12 +7,12 @@ from pydantic import Field
 import requests
 import yaml
 import base64
-from github import Github, Auth
-from openai import OpenAI
+from github import Github, Auth #type: ignore
+from openai import OpenAI, AzureOpenAI  #type: ignore
 import asyncio
 import os
 from utils.config import AZURE_AI_API_KEY,github_token
-from openai import AzureOpenAI
+
 auth = Auth.Token(github_token)
 g = Github(auth=auth)
 REPO_OWNER = "RAGHAVENDRA-VAM"
@@ -226,7 +226,7 @@ async def TF_Builder(cloud_provider: Annotated[str, Field(description="The cloud
 
         logger.info("[TF_Builder] Generating Terraform pipeline script using content generator...")
         print("[TF_Builder] Generating Terraform pipeline script using content generator...")
-        tf_script = await create_yaml_scripts(prompt)
+        tf_script = create_yaml_scripts(prompt)
 
         tf_repo_name = "Workflow-files"
         logger.info(f"[TF_Builder] Pushing Terraform Pipeline script into the repository: {tf_repo_name}")

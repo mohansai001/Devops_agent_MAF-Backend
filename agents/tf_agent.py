@@ -1,7 +1,7 @@
 from utils.logger import get_logger
 logger = get_logger(__name__)
 from tools.tf_tools.base import TF_Module_builder
-from agent_framework import tool 
+from agent_framework import tool #type: ignore
 from typing import Annotated
 from pydantic import Field
 from utils.prompt_manager_v2 import AgentInstructionPrompt, AgentDescriptionPrompt
