@@ -1,3 +1,8 @@
+fastapi
+uvicorn
+gunicorn
+sqlalchemy
+pymysql
 agent-framework
 pydantic
 azure-identity
