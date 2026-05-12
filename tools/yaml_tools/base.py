@@ -59,39 +59,27 @@ def get_cicd_paths(config, tool, language=None, target=None):
         result["cd"] = cd_path
 
     return result
+from adapters.github.git_write import commit_files as github_commit_files
 
 def github_push_files(files_to_push, repo_name, commit_message, branch="main"):
-    repo = g.get_repo(f"{REPO_OWNER}/{repo_name}")
+    # repo = g.get_repo(f"{REPO_OWNER}/{repo_name}")
     print("In the github_push_files function\n")
     results = []
     for file_path, file_content in files_to_push.items():
         try:
             # Try to get existing file
-            existing_file = repo.get_contents(file_path, ref=branch)
+            # existing_file = repo.get_contents(file_path, ref=branch)
             # Update existing file
-            repo.update_file(
-                path=file_path,
-                message=commit_message,
-                content=file_content,
-                sha=existing_file.sha,
-                branch=branch
+            response = github_commit_files(
+                repo=repo_name,
+                file_path=file_path,
+                commit_message=commit_message,
+                branch=branch,
+                content=file_content
             )
-            print(f"Updated {file_path}")
-            results.append({"file": file_path, "action": "updated"})
+            results.append(response)
         except Exception as e:
-            try:
-                # File doesn't exist, create it
-                repo.create_file(
-                    path=file_path,
-                    message=commit_message,
-                    content=file_content,
-                    branch=branch
-                )
-                print(f"Created {file_path}")
-                results.append({"file": file_path, "action": "created"})
-            except Exception as ce:
-                print(f"Failed to create {file_path}: {ce}")
-                results.append({"file": file_path, "action": "error", "error": str(ce)})
+            print(f"Error processing {file_path}: {e}")
     return results
 
 

@@ -1,0 +1,21 @@
+repo_name: "The name of the repository for which the infrastructure should be provisioned"
+cloud_provider: "The cloud provider to be used for the infrastructure (e.g., 'azure', 'aws', 'gcp')"
+Resources: |
+  ALL resources to be provisioned in a SINGLE JSON structure. Example:
+  {
+    "vm": {
+      "name": "my-vm",
+      "size": "Standard_B1ms",
+      "ram": "2GB"
+    },
+    "webapp": {
+      "name": "my-webapp",
+      "port": 80,
+      "location": "East US"
+    },
+    "resource_group": {
+      "name": "rg-main",
+      "location": "East US"
+    }
+  }
+  Resource names should be lowercase with underscores.

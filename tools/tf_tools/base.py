@@ -1,32 +1,17 @@
 from typing import Annotated
 from pydantic import Field
 from agent_framework import tool #type: ignore
-import requests
-import yaml
-import base64
-import asyncio
-import os
 import json
-from utils.clientConnection import get_client
-from utils.config import github_token,model_subscription_key
-from github import Github, Auth #type: ignore
 from ..yaml_tools.base import github_push_files
-from openai import AzureOpenAI #type:ignore
 from utils.logger import get_logger
+from adapters.github.git_search import github_find_folder
+from utils.prompt_manager_v2 import GeneratorPrompt
 
-GITHUB_TOKEN = github_token
 logger = get_logger(__name__)
 
-from utils.clientConnection import get_client
-from utils.config import Base_agent_config
-
-client = get_client(model=Base_agent_config.model, endpoint=Base_agent_config.AI_endpoint)
-
-auth = Auth.Token(GITHUB_TOKEN)
-g = Github(auth=auth)
 REPO_OWNER = "RAGHAVENDRA-VAM"
 
-from ..yaml_tools.content_generator import create_yaml_scripts, clean_yaml_output
+from ..yaml_tools.content_generator import create_yaml_scripts
 
 def get_azure_response(content, file_name, cloud_provider, resource_group_dict, resource):
     logger.info("[get_azure_response] Inside azure call.....")
@@ -35,31 +20,8 @@ def get_azure_response(content, file_name, cloud_provider, resource_group_dict, 
     # Convert dictionaries to strings for the prompt if needed
     resource_str = json.dumps(resource, indent=2) if isinstance(resource, dict) else str(resource)
     resource_group_str = json.dumps(resource_group_dict, indent=2) if isinstance(resource_group_dict, dict) else str(resource_group_dict)
-    
-    text = f"""
-    You are a Terraform expert. Your task is to analyze the provided Terraform module code and update it according to the specified resource details.
-
-    The module code is:
-    {content}
-
-    The resource details are:
-    {resource_str}
-
-    The resource group details are:
-    {resource_group_str}
-
-    Below is the cloud provider:
-    {cloud_provider}
-
-    File name being processed:
-    {file_name}
-
-    Please ensure the following:
-    1. Update the module code to match the provided resource details.
-    2. Ensure the resource group is correctly referenced.
-    3. Maintain proper Terraform syntax and best practices.
-    4. Return only the updated Terraform code without any additional explanation.
-    """    
+    text = GeneratorPrompt("terraform-generator")
+    text = text.render(content = content, resource_str = resource_str, resource_group_str = resource_group_str, cloud_provider = cloud_provider, file_name = file_name)  
     try:
         response = create_yaml_scripts(text)
         logger.info("[get_azure_response] Azure AI response received.")
@@ -69,72 +31,17 @@ def get_azure_response(content, file_name, cloud_provider, resource_group_dict, 
         logger.error(f"[get_azure_response] Azure Error: {str(e)}", exc_info=True)
         print(f"Azure Error: {str(e)}")
         return f"Azure Error: {str(e)}"
-
-def github_read_contents(path, repo_owner=REPO_OWNER, repo_name="Terraform_modules"):
-    logger.info(f"[github_read_contents] Reading content from path: {path}")
-    try:
-        print(f"Reading content from path: {path}")
-        repo = g.get_repo(f"{repo_owner}/{repo_name}")
-        content = repo.get_contents(path)
-        decoded_content = content.decoded_content.decode()
-        logger.info(f"[github_read_contents] Successfully read content from {path}")
-        print(f"Successfully read content from {path}")
-        return decoded_content
-    except Exception as e:
-        logger.error(f"[github_read_contents] Error reading GitHub file content from {path}: {e}", exc_info=True)
-        print(f"Error reading GitHub file content from {path}: {e}")
-        return None
-
-def github_find_folder(cloud, resource_type, repo_owner=REPO_OWNER, repo_name="Terraform_modules"):
-    logger.info(f"[github_find_folder] Searching for modules/{cloud}/{resource_type}")
-    try:
-        repo = g.get_repo(f"{repo_owner}/{repo_name}")
-        tree = repo.get_git_tree("HEAD", recursive=True).tree
-        target_path = f"modules/{cloud}/{resource_type}"
-        found_paths = []
-        for item in tree:
-            if item.path.startswith(target_path):
-                if item.type == 'blob':
-                    found_paths.append(item.path)
-        logger.info(f"[github_find_folder] Total module files found for {cloud}/{resource_type}: {len(found_paths)}")
-        print(f"Total module files found for {cloud}/{resource_type}: {len(found_paths)}")
-        print("Found files:", found_paths)
-        print("=" * 30)
-        return found_paths
-    except Exception as e:
-        logger.error(f"[github_find_folder] Error searching GitHub repo: {e}", exc_info=True)
-        print(f"Error searching GitHub repo: {e}")
-        return []
-
-def create_terraform_files_dict(files_to_push):
-    """Convert files to the format expected by github_push_files"""
-    # Based on yaml_tools implementation, github_push_files expects:
-    # files_to_push: dict with file_path as key and file_content as value
-    return files_to_push
+    
+from adapters.github.git_read import github_read_contents
+from utils.prompt_manager_v2 import ToolFieldsPrompt
 
 """"Version 3"""
+_tf_module_builder_feilds = ToolFieldsPrompt("tf-module-builder-field-description")
 @tool(name="TF_Module_builder", description="Builds Terraform modules by understanding the requirements such as the desired infrastructure, cloud provider, and specific configurations.", approval_mode="never_require")
 async def TF_Module_builder(
-    repo_name: Annotated[str, Field(description="The name of the repository for which the infrastructure should be provisioned")],
-    cloud_provider: Annotated[str, Field(description="The cloud provider to be used for the infrastructure (e.g., 'azure', 'aws', 'gcp')")],
-    Resources: Annotated[str, Field(description="""ALL resources to be provisioned in a SINGLE JSON structure. Example:
-                                                {
-                                                  "vm": {
-                                                    "name": "my-vm",
-                                                    "size": "Standard_B1ms",
-                                                    "ram": "2GB"
-                                                  },
-                                                  "webapp": {
-                                                    "name": "my-webapp", 
-                                                    "port": 80,
-                                                    "location": "East US"
-                                                  },
-                                                  "resource_group": {
-                                                    "name": "rg-main",
-                                                    "location": "East US"
-                                                  }
-                                                }
-                                                Resource names should be lowercase with underscores.""")]):
+    repo_name: Annotated[str, Field(description=_tf_module_builder_feilds.get("repo_name"))],
+    cloud_provider: Annotated[str, Field(description= _tf_module_builder_feilds.get("cloud_provider"))],
+    Resources: Annotated[str, Field(description=_tf_module_builder_feilds.get("Resources"))]):
     logger.info("[TF_Module_builder] Building Terraform configuration...")
     print("Building Terraform configuration...")
     logger.info(f"[TF_Module_builder] Cloud Provider: {cloud_provider}")

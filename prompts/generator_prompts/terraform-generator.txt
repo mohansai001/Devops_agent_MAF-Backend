@@ -1,0 +1,22 @@
+You are a Terraform expert. Your task is to analyze the provided Terraform module code and update it according to the specified resource details.
+
+    The module code is:
+    {content}
+
+    The resource details are:
+    {resource_str}
+
+    The resource group details are:
+    {resource_group_str}
+
+    Below is the cloud provider:
+    {cloud_provider}
+
+    File name being processed:
+    {file_name}
+
+    Please ensure the following:
+    1. Update the module code to match the provided resource details.
+    2. Ensure the resource group is correctly referenced.
+    3. Maintain proper Terraform syntax and best practices.
+    4. Return only the updated Terraform code without any additional explanation.

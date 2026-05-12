@@ -10,6 +10,7 @@ class PromptType(Enum):
     USER_PROMPT = "user_prompts"
     TEST_USER_PROMPTS = "test_user_prompts"
     FIELD_DESCRIPTION = "field_descriptions"
+    GENERATOR_PROMPT = "generator_prompts"
 
 
 
@@ -112,6 +113,10 @@ class ToolDescriptionPrompt(BasePrompt):
     """Loads from prompts/tool_descriptions/<name>.txt"""
     _prompt_type = PromptType.TOOL_DESCRIPTION
 
+class GeneratorPrompt(BasePrompt):
+    """Loads from prompts/generators/<name>.txt"""
+    _prompt_type = PromptType.GENERATOR_PROMPT
+
 class ToolFieldsPrompt:
     """
     Loads field descriptions from prompts/tool_fields/<name>.yaml
@@ -140,7 +145,7 @@ class ToolFieldsPrompt:
 if __name__ == "__main__":
     # Load and render an instruction prompt
     # Reads from: prompts/instructions/summarize.txt
-    instruction = ToolFieldsPrompt("tf-agent-field-description")
+    # instruction = ToolFieldsPrompt("tf-agent-field-description")
     # print(instruction.__str__())  # Raw template
 
     # # Load and render a description prompt
@@ -149,4 +154,7 @@ if __name__ == "__main__":
     # print(description.render(product_name="Widget Pro", price="$49"))
 
     # Access raw template string
-    print(instruction.get("resources"))
+    # print(instruction.get("resources"))
+    text = GeneratorPrompt("terraform-generator")
+    text = text.render(content = "content1", resource_str = "resource_str", resource_group_str = "resource_group_str", cloud_provider = "cloud_provider", file_name = "file_name")
+    print(text)
