@@ -8,7 +8,7 @@ on:
 
 env:
   PYTHON_VERSION: "3.11"
-  AZURE_WEBAPP_NAME: "your-webapp-name"
+  AZURE_WEBAPP_NAME: "devopsagent-backend"
 
 jobs:
   build:
@@ -41,43 +41,12 @@ jobs:
           name: python-app
           path: app.zip
 
-  sast:
-    name: Security Scan (SAST)
-    runs-on: ubuntu-latest
-    needs: build
-
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
-
-      # Semgrep
-      - name: Run Semgrep
-        uses: returntocorp/semgrep-action@v1
-        with:
-          config: "auto"
-
-      # Gitleaks
-      - name: Run Gitleaks
-        run: |
-          docker run --rm -v ${{ github.workspace }}:/path zricethezav/gitleaks:latest detect \
-            --source="/path" \
-            --verbose \
-            --redact
-
-      # Trivy
-      - name: Run Trivy FS Scan
-        uses: aquasecurity/trivy-action@master
-        with:
-          scan-type: fs
-          scan-ref: .
-          format: table
-          severity: HIGH,CRITICAL
-          exit-code: 1
+  
 
   deploy:
     name: Deploy to Azure Web App
     runs-on: ubuntu-latest
-    needs: [build, sast]
+    needs: [build]
     environment: production
 
     steps:

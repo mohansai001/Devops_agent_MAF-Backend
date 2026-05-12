@@ -1,3 +1,9 @@
+fastapi
+uvicorn
+gunicorn
+sqlalchemy
+pymysql
+psycopg2-binary
 agent-framework
 pydantic
 azure-identity
