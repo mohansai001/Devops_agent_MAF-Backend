@@ -11,3 +11,6 @@ class Base_agent_config:
     model = os.getenv("AI_foundry_model")
     AI_endpoint = os.getenv("AI_foundry_url")
     retries = int(os.getenv("Azure_connection_retries", 3))
+
+class DataBase_config:
+    cloud_db = os.getenv("CLOUD_DB_URL")
