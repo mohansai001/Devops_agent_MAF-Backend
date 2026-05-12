@@ -19,3 +19,6 @@ class Content_generator_model_config:
     AI_content_endpoint = os.getenv("AI_content_endpoint")
     AI_content_key = os.getenv("AI_content_key")
     AI_content_model = os.getenv("AI_content_model")
+
+class DataBase_config:
+    cloud_db = os.getenv("CLOUD_DB_URL")
