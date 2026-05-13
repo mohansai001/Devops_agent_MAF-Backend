@@ -4,6 +4,8 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from sqlalchemy.orm import Session
 from database.database import sessionlocal
 from models.tables.config_details import ConfigDetails
+from models.tables.Agents import Agents
+from models.requests.Agents_table_requests import AgentCreateRequest, AgentUpdateRequest
 from models.responses.config_details_response import ConfigDetailsRequest
 from typing import Union
 
@@ -16,6 +18,31 @@ async def get_all_triggered_records(db: Session) :
 
 async def get_triggered_record_by_id(db: Session, record_id: int) -> Union[ConfigDetails, None]:
     return db.query(ConfigDetails).filter(ConfigDetails.id == record_id).first()
+
+async def get_agents(db: Session):
+    return db.query(Agents).all()
+
+async def add_agent(db:Session, details:AgentCreateRequest) -> Agents:
+    new_agent = Agents(
+        agent_name=details.agent_name,
+        created_by=details.created_by,
+        created_at=details.created_at
+    )
+    db.add(new_agent)
+    db.commit()
+    db.refresh(new_agent)
+    return new_agent
+
+async def update_agent(db:Session, agent_id:int, details:AgentUpdateRequest) -> Union[Agents, None]:
+    agent = db.query(Agents).filter(Agents.id == agent_id).first()
+    if not agent:
+        return None
+    agent.agent_name = details.agent_name
+    agent.updated_by = details.updated_by
+    agent.updated_at = details.updated_at
+    db.commit()
+    db.refresh(agent)
+    return agent
 
 import asyncio
 
