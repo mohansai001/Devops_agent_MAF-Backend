@@ -16,7 +16,7 @@ def commit_files(
     # --- Input validation ---
     if not repo or "/" not in repo:
         return "Invalid repo format. Use 'owner/repo'."
-    if not file_path or file_path.startswith(".git"):
+    if not file_path or file_path.startswith(".git/"):
         return "Invalid file path. Must be relative to repo root and not a .git path."
     if not commit_message.strip():
         return "Commit message cannot be empty."
@@ -82,3 +82,4 @@ def commit_files(
     except Exception as e:
         print(f"Unexpected error: {e}")
         return f"Unexpected error while committing: {str(e)}"
+    

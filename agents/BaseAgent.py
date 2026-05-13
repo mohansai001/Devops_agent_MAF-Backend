@@ -32,7 +32,7 @@ class BaseAgent:
 
     @classmethod
     def get_instance(cls):
-        if cls._instance is None:
+        if "_instance" not in cls.__dict__ or cls.__dict__["_instance"] is None:
             cls._instance = cls()
         return cls._instance
 
@@ -64,6 +64,20 @@ class BaseAgent:
         for provider in self.context_providers:
             if hasattr(provider, "clear") and not getattr(provider, "persist_across_sessions", False):
                 await provider.clear()
+
+    async def run_stream(self, prompt: str):
+        """Streaming run — yields text chunks as they arrive"""
+        try:
+            async for chunk in self._agent.run(
+                prompt,
+                stream=True,
+                session=self._session,
+                middleware=self.run_middleware
+            ):
+                if chunk.text:
+                    yield chunk.text
+        finally:
+            await self._clear_session()
 
     async def _print_context(self):
         print(f"\n{'='*60}")
