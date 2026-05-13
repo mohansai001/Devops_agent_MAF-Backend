@@ -22,3 +22,18 @@ class Content_generator_model_config:
 
 class DataBase_config:
     cloud_db = os.getenv("CLOUD_DB_URL")
+
+class Azure_config:
+    client_id = os.getenv("AZURE_CLIENT_ID")
+    client_secret = os.getenv("AZURE_CLIENT_SECRET")
+    tenant_id = os.getenv("AZURE_TENANT_ID")
+    subscription_id = os.getenv("AZURE_SUBSCRIPTION_ID")
+
+
+#create a dictionary with Azure
+azure_config = {
+    "client_id": Azure_config.client_id,
+    "client_secret": Azure_config.client_secret,
+    "tenant_id": Azure_config.tenant_id,
+    "subscription_id": Azure_config.subscription_id
+}

@@ -11,8 +11,10 @@ import base64
 from openai import OpenAI, AzureOpenAI  #type: ignore
 import asyncio
 import os
-from utils.config import AZURE_AI_API_KEY,github_token
+from utils.config import AZURE_AI_API_KEY,github_token,azure_config
 from utils.github_client import get_github_client
+from adapters.github.git_write import set_github_secret
+from adapters.github.git_read import wait_for_latest_workflow
 
 # auth = Auth.Token(github_token)
 g = get_github_client() 
@@ -124,16 +126,24 @@ Your job is to take a CI/CD pipeline YAML template and generate a complete, full
         # print("[CI_Builder] Generating CI pipeline script using content generator...")
         ci_script = create_yaml_scripts(instructions)
 
-        ci_repo_name = "Workflow-files"  # Make ci_repo_name dynamic while deploying.....
-        logger.info(f"[CI_Builder] Pushing CI Pipeline script into the repository: {ci_repo_name}")
+        # ci_repo_name = "Workflow-files"  # Make ci_repo_name dynamic while deploying.....
+        logger.info(f"[CI_Builder] Pushing CI Pipeline script into the repository: {repo_name}")
         # print(f"[CI_Builder] Pushing CI Pipeline script into the repository: {ci_repo_name}")
         result = github_push_files(
             {f".github/workflows/{techstack}-ci.yml": ci_script},
-            f"{REPO_OWNER}/{ci_repo_name}",
+            f"{REPO_OWNER}/{repo_name}",
             "Add CI pipeline",
             "main"
         )
         logger.info(f"[CI_Builder] CI push result: {result}")
+        workflow_status=wait_for_latest_workflow(f"{REPO_OWNER}/{repo_name}", f"{techstack}-ci.yml")
+        if workflow_status==True:
+            logger.info(f"[CI_Builder] Workflow status: {workflow_status}")
+        else:
+            logger.error(f"[CI_Builder] Workflow failed or timed out")
+            return f"Workflow failed or timed out"
+        # print(f"[CD_Builder] CD push result: {result}")
+        return f"TASK COMPLETED: {ci_script}"
         # print(f"[CI_Builder] CI push result: {result}")
     except Exception as e:
         logger.error(f"[CI_Builder] Error occurred while creating CI pipeline: {e}", exc_info=True)
@@ -178,6 +188,9 @@ Your job is to take a CI/CD pipeline YAML template and generate a complete, full
         cd_script = create_yaml_scripts(instructions)
         # Make the repo dynamic while deploying...
         cd_repo_name = "Workflow-files"
+        logger.info(f"[CD_Builder] Setting up secrets for CD pipeline in the repository: {repo_name}")
+        for key, value in azure_config.items():
+            set_github_secret(repo_name, key, value)
         logger.info(f"[CD_Builder] Pushing CD Pipeline script into the repository: {repo_name}")
         # print(f"[CD_Builder] Pushing CD Pipeline script into the repository: {repo_name}")
         result = github_push_files(
@@ -187,7 +200,15 @@ Your job is to take a CI/CD pipeline YAML template and generate a complete, full
             "main"
         )
         logger.info(f"[CD_Builder] CD push result: {result}")
+        logger.info(f"[CD_Builder] Waiting for CD workflow to complete...")
+        workflow_status=wait_for_latest_workflow(f"{REPO_OWNER}/{repo_name}", f"{target}-cd.yml")
+        if workflow_status==True:
+            logger.info(f"[CD_Builder] Workflow status: {workflow_status}")
+        else:
+            logger.error(f"[CD_Builder] Workflow failed or timed out")
+            return f"Workflow failed or timed out"
         # print(f"[CD_Builder] CD push result: {result}")
+        return f"TASK COMPLETED: {cd_script}"
     except Exception as e:
         logger.error(f"[CD_Builder] Error occurred while creating CD pipeline: {e}", exc_info=True)
         # print(f"[CD_Builder] Error occurred while creating CD pipeline: {e}")
@@ -199,6 +220,7 @@ async def TF_Builder(cloud_provider: Annotated[str, Field(description="The cloud
                      resources: Annotated[str, Field(description="The resources to be provisioned in the infrastructure")],
                      repo_name: Annotated[str, Field(description="The repository name")]):
     try:
+
         logger.info("[TF_Builder] Tool called.")
         # print("[TF_Builder] Tool called.")
         logger.info(f"[TF_Builder] Input parameters - Cloud Provider: {cloud_provider}, Resource Group: {resource_group}, Resources: {resources}, Repo Name: {repo_name}")
@@ -216,8 +238,11 @@ async def TF_Builder(cloud_provider: Annotated[str, Field(description="The cloud
         logger.info("[TF_Builder] Generating Terraform pipeline script using content generator...")
         # print("[TF_Builder] Generating Terraform pipeline script using content generator...")
         tf_script = create_yaml_scripts(prompt)
-
+        
         tf_repo_name = "Workflow-files"
+        logger.info(f"[CD_Builder] Setting up secrets for CD pipeline in {tf_repo_name}")
+        for key, value in azure_config.items():
+            set_github_secret(tf_repo_name, key, value)
         logger.info(f"[TF_Builder] Pushing Terraform Pipeline script into the repository: {tf_repo_name}")
         # print(f"[TF_Builder] Pushing Terraform Pipeline script into the repository: {tf_repo_name}")
         result = github_push_files(
@@ -228,6 +253,14 @@ async def TF_Builder(cloud_provider: Annotated[str, Field(description="The cloud
         )
         logger.info(f"[TF_Builder] TF push result: {result}")
         # print(f"[TF_Builder] TF push result: {result}")
+        logger.info(f"[TF_Builder] Waiting for terraform workflow to complete...")
+        workflow_status=wait_for_latest_workflow(f"{REPO_OWNER}/{tf_repo_name}", f"{repo_name}-tf.yml")
+        if workflow_status==True:
+            logger.info(f"[TF_Builder] Workflow status: {workflow_status}")
+        else:
+            logger.error(f"[TF_Builder] Workflow failed or timed out")
+            return f"Workflow failed or timed out"
+
         logger.info("[TF_Builder] TASK COMPLETED")
         # print("[TF_Builder] TASK COMPLETED")
         # print("==================TASK Completed===================")
