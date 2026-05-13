@@ -7,14 +7,15 @@ from pydantic import Field
 import requests
 import yaml
 import base64
-from github import Github, Auth #type: ignore
+# from github import Github, Auth #type: ignore
 from openai import OpenAI, AzureOpenAI  #type: ignore
 import asyncio
 import os
 from utils.config import AZURE_AI_API_KEY,github_token
+from utils.github_client import get_github_client
 
-auth = Auth.Token(github_token)
-g = Github(auth=auth)
+# auth = Auth.Token(github_token)
+g = get_github_client() 
 REPO_OWNER = "RAGHAVENDRA-VAM"
 from utils.clientConnection import get_client
 from .content_generator import create_yaml_scripts
@@ -91,27 +92,27 @@ async def CI_Builder(tool: Annotated[str, Field(description="The CI tool to used
     # Assuming Tech stack, tool, Repository name and Framework comes from the orchestrator agent
     try:
         logger.info("[CI_Builder] Tool called.")
-        print("[CI_Builder] Tool called.")
+        # print("[CI_Builder] Tool called.")
         logger.info(f"[CI_Builder] Input parameters - Tech Stack: {techstack}, Tool: {tool}, Repo Name: {repo_name}")
-        print(f"[CI_Builder] Input parameters - Tech Stack: {techstack}, Tool: {tool}, Repo Name: {repo_name}")
-        print(f"Tech Stack: {techstack}")
+        # print(f"[CI_Builder] Input parameters - Tech Stack: {techstack}, Tool: {tool}, Repo Name: {repo_name}")
+        # print(f"Tech Stack: {techstack}")
 
         logger.info("[CI_Builder] Reading YAML library for CI template paths...")
-        print("[CI_Builder] Reading YAML library for CI template paths...")
+        # print("[CI_Builder] Reading YAML library for CI template paths...")
         yaml_data = github_read_yaml_library()
         logger.info(f"[CI_Builder] YAML data keys: {list(yaml_data.keys())}")
-        print(f"[CI_Builder] YAML data keys: {list(yaml_data.keys())}")
+        # print(f"[CI_Builder] YAML data keys: {list(yaml_data.keys())}")
 
         paths = get_cicd_paths(yaml_data, tool, techstack)
         logger.info(f"[CI_Builder] CI template path: {paths.get('ci')}")
-        print(f"[CI_Builder] CI template path: {paths.get('ci')}")
+        # print(f"[CI_Builder] CI template path: {paths.get('ci')}")
 
         ci_template = github_read_yaml_library(paths["ci"])
         logger.info("[CI_Builder] Loaded CI template from YAML library.")
-        print("[CI_Builder] Loaded CI template from YAML library.")
+        # print("[CI_Builder] Loaded CI template from YAML library.")
 
         logger.info("[CI_Builder] Preparing instructions for CI pipeline generation.")
-        print("[CI_Builder] Preparing instructions for CI pipeline generation.")
+        # print("[CI_Builder] Preparing instructions for CI pipeline generation.")
         instructions = f"""You are a Senior DevOps Engineer. 
 Your job is to take a CI/CD pipeline YAML template and generate a complete, fully working pipeline script.
 - Replace placeholders with real, working values
@@ -120,23 +121,23 @@ Your job is to take a CI/CD pipeline YAML template and generate a complete, full
         print("Instructions for CI pipeline generation:\n", instructions)
 
         logger.info("[CI_Builder] Generating CI pipeline script using content generator...")
-        print("[CI_Builder] Generating CI pipeline script using content generator...")
+        # print("[CI_Builder] Generating CI pipeline script using content generator...")
         ci_script = create_yaml_scripts(instructions)
 
         ci_repo_name = "Workflow-files"  # Make ci_repo_name dynamic while deploying.....
         logger.info(f"[CI_Builder] Pushing CI Pipeline script into the repository: {ci_repo_name}")
-        print(f"[CI_Builder] Pushing CI Pipeline script into the repository: {ci_repo_name}")
+        # print(f"[CI_Builder] Pushing CI Pipeline script into the repository: {ci_repo_name}")
         result = github_push_files(
             {f".github/workflows/{techstack}-ci.yml": ci_script},
-            ci_repo_name,
+            f"{REPO_OWNER}/{ci_repo_name}",
             "Add CI pipeline",
             "main"
         )
         logger.info(f"[CI_Builder] CI push result: {result}")
-        print(f"[CI_Builder] CI push result: {result}")
+        # print(f"[CI_Builder] CI push result: {result}")
     except Exception as e:
         logger.error(f"[CI_Builder] Error occurred while creating CI pipeline: {e}", exc_info=True)
-        print(f"[CI_Builder] Error occurred while creating CI pipeline: {e}")
+        # print(f"[CI_Builder] Error occurred while creating CI pipeline: {e}")
 
 
 @tool(name="CD_builder", description="Builds a CD pipeline based on the given requirements", approval_mode="never_require")
@@ -147,25 +148,25 @@ async def CD_Builder(target: Annotated[str, Field(description="The target enviro
     # Assuming Tech stack, tool, Repository name and Framework comes from the orchestrator agent
     try:
         logger.info("[CD_Builder] Tool called.")
-        print("[CD_Builder] Tool called.")
+        # print("[CD_Builder] Tool called.")
         logger.info(f"[CD_Builder] Input parameters - Tech Stack: {techstack}, Tool: {tool}, Repo Name: {repo_name}, Target: {target}")
-        print(f"[CD_Builder] Input parameters - Tech Stack: {techstack}, Tool: {tool}, Repo Name: {repo_name}, Target: {target}")
+        # print(f"[CD_Builder] Input parameters - Tech Stack: {techstack}, Tool: {tool}, Repo Name: {repo_name}, Target: {target}")
 
         logger.info("[CD_Builder] Reading YAML library for CD template paths...")
-        print("[CD_Builder] Reading YAML library for CD template paths...")
+        # print("[CD_Builder] Reading YAML library for CD template paths...")
         yaml_data = github_read_yaml_library()
         # logger.info(f"[CD_Builder] YAML data keys: {list(yaml_data.keys())}")
 
         paths = get_cicd_paths(yaml_data, tool, target=target)
         logger.info(f"[CD_Builder] CD template path: {paths.get('cd')}")
-        print(f"[CD_Builder] CD template path: {paths.get('cd')}")
+        # print(f"[CD_Builder] CD template path: {paths.get('cd')}")
 
         cd_template = github_read_yaml_library(paths["cd"])
         logger.info("[CD_Builder] Loaded CD template from YAML library.")
-        print("[CD_Builder] Loaded CD template from YAML library.")
+        # print("[CD_Builder] Loaded CD template from YAML library.")
 
         logger.info("[CD_Builder] Preparing instructions for CD pipeline generation.")
-        print("[CD_Builder] Preparing instructions for CD pipeline generation.")
+        # print("[CD_Builder] Preparing instructions for CD pipeline generation.")
         instructions = f"""You are a Senior DevOps Engineer. 
 Your job is to take a CI/CD pipeline YAML template and generate a complete, fully working pipeline script.
 - Replace placeholders with real, working values
@@ -173,12 +174,12 @@ Your job is to take a CI/CD pipeline YAML template and generate a complete, full
 - Output ONLY valid YAML, no explanations or markdown. Below is the attached cd template {cd_template}"""
 
         logger.info("[CD_Builder] Generating CD pipeline script using content generator...")
-        print("[CD_Builder] Generating CD pipeline script using content generator...")
+        # print("[CD_Builder] Generating CD pipeline script using content generator...")
         cd_script = create_yaml_scripts(instructions)
         # Make the repo dynamic while deploying...
         cd_repo_name = "Workflow-files"
         logger.info(f"[CD_Builder] Pushing CD Pipeline script into the repository: {repo_name}")
-        print(f"[CD_Builder] Pushing CD Pipeline script into the repository: {repo_name}")
+        # print(f"[CD_Builder] Pushing CD Pipeline script into the repository: {repo_name}")
         result = github_push_files(
             {f".github/workflows/{target}-cd.yml": cd_script},
             cd_repo_name,
@@ -186,10 +187,10 @@ Your job is to take a CI/CD pipeline YAML template and generate a complete, full
             "main"
         )
         logger.info(f"[CD_Builder] CD push result: {result}")
-        print(f"[CD_Builder] CD push result: {result}")
+        # print(f"[CD_Builder] CD push result: {result}")
     except Exception as e:
         logger.error(f"[CD_Builder] Error occurred while creating CD pipeline: {e}", exc_info=True)
-        print(f"[CD_Builder] Error occurred while creating CD pipeline: {e}")
+        # print(f"[CD_Builder] Error occurred while creating CD pipeline: {e}")
    
 
 @tool(name="TF_Builder", description="Builds a Terraform yaml based on the given requirements", approval_mode="never_require")
@@ -199,26 +200,26 @@ async def TF_Builder(cloud_provider: Annotated[str, Field(description="The cloud
                      repo_name: Annotated[str, Field(description="The repository name")]):
     try:
         logger.info("[TF_Builder] Tool called.")
-        print("[TF_Builder] Tool called.")
+        # print("[TF_Builder] Tool called.")
         logger.info(f"[TF_Builder] Input parameters - Cloud Provider: {cloud_provider}, Resource Group: {resource_group}, Resources: {resources}, Repo Name: {repo_name}")
-        print(f"[TF_Builder] Input parameters - Cloud Provider: {cloud_provider}, Resource Group: {resource_group}, Resources: {resources}, Repo Name: {repo_name}")
+        # print(f"[TF_Builder] Input parameters - Cloud Provider: {cloud_provider}, Resource Group: {resource_group}, Resources: {resources}, Repo Name: {repo_name}")
 
         logger.info("[TF_Builder] Preparing prompt for Terraform YAML generation.")
-        print("[TF_Builder] Preparing prompt for Terraform YAML generation.")
+        # print("[TF_Builder] Preparing prompt for Terraform YAML generation.")
         prompt = f"You are a senior Devops Platform Engineer. Generate a production grade Terraform pipeline yml for {cloud_provider} with the following details:\n\n"
         prompt += f"Resource Group: {resource_group}\n"
         prompt += f"Resources: {resources}\n"
         prompt += f"Repository: {repo_name}\n"
         # logger.info(f"[TF_Builder] Prompt: {prompt}")
-        print(f"[TF_Builder] Prompt: {prompt}")
+        # print(f"[TF_Builder] Prompt: {prompt}")
 
         logger.info("[TF_Builder] Generating Terraform pipeline script using content generator...")
-        print("[TF_Builder] Generating Terraform pipeline script using content generator...")
+        # print("[TF_Builder] Generating Terraform pipeline script using content generator...")
         tf_script = create_yaml_scripts(prompt)
 
         tf_repo_name = "Workflow-files"
         logger.info(f"[TF_Builder] Pushing Terraform Pipeline script into the repository: {tf_repo_name}")
-        print(f"[TF_Builder] Pushing Terraform Pipeline script into the repository: {tf_repo_name}")
+        # print(f"[TF_Builder] Pushing Terraform Pipeline script into the repository: {tf_repo_name}")
         result = github_push_files(
             {f".github/workflows/{repo_name}-tf.yml": tf_script},
             tf_repo_name,
@@ -226,11 +227,11 @@ async def TF_Builder(cloud_provider: Annotated[str, Field(description="The cloud
             "main"
         )
         logger.info(f"[TF_Builder] TF push result: {result}")
-        print(f"[TF_Builder] TF push result: {result}")
+        # print(f"[TF_Builder] TF push result: {result}")
         logger.info("[TF_Builder] TASK COMPLETED")
-        print("[TF_Builder] TASK COMPLETED")
-        print("==================TASK Completed===================")
+        # print("[TF_Builder] TASK COMPLETED")
+        # print("==================TASK Completed===================")
         return f"TASK COMPLETED: {tf_script}"
     except Exception as e:
         logger.error(f"[TF_Builder] Error occurred while creating Terraform pipeline: {e}", exc_info=True)
-        print(f"[TF_Builder] Error occurred while creating Terraform pipeline: {e}")
+        # print(f"[TF_Builder] Error occurred while creating Terraform pipeline: {e}")
