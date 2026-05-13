@@ -1,7 +1,15 @@
+import os
+import sys
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../")))
 from utils.logger import get_logger
 from utils.github_client import get_github_client
 from github import GithubException # type: ignore
+from nacl import public as nacl_public, encoding #type: ignore
+import base64
+from utils.logger import get_logger
 
+
+logger = get_logger(__name__) 
 g = get_github_client()
 
 def commit_files(
@@ -82,4 +90,29 @@ def commit_files(
     except Exception as e:
         print(f"Unexpected error: {e}")
         return f"Unexpected error while committing: {str(e)}"
-    
+
+
+
+async def _set_github_secret(repo_full_name: str, secret_name: str, secret_value: str) -> None:
+    # try:
+    repo = g.get_repo(repo_full_name)
+    print(repo)
+    public_key = repo.get_public_key()
+
+    pk = nacl_public.PublicKey(public_key.key.encode(), encoding.Base64Encoder)
+    box = nacl_public.SealedBox(pk)
+    encrypted_b64 = base64.b64encode(box.encrypt(secret_value.encode())).decode()
+
+    repo.create_secret(secret_name, encrypted_b64)
+    logger.info("Secret '%s' set on repo %s", secret_name, repo_full_name)
+
+    # except GithubException as e:
+    #     logger.warning(
+    #         "Failed to set secret '%s' on %s: %s",
+    #         secret_name, repo_full_name, e.data
+    #     )
+
+import asyncio
+if __name__ == "__main__":
+    result = asyncio.run(_set_github_secret("Hari-var/test_repo", "test_secret", "test_value"))
+    print(result)
