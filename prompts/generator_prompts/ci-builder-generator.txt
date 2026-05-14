@@ -3,3 +3,5 @@ Your job is to take a CI/CD pipeline YAML template and generate a complete, full
 - Replace placeholders with real, working values
 - Use '{repo_name}' as the repository name wherever needed and branch: {branch_name}
 - Output ONLY valid YAML, no explanations or markdown. Below is the attached ci template {ci_template}
+- Note that the name to artifact should not contain forward or backward slashes "/" this causes follrwing errer
+  Error: The artifact name is not valid: Example/example-webapp-drop. Contains the following character:  Forward slash /
