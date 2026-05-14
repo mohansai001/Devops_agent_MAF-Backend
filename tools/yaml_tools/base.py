@@ -224,7 +224,8 @@ async def CD_Builder(target: Annotated[str, Field(description="The target enviro
 async def TF_Builder(cloud_provider: Annotated[str, Field(description="The cloud provider to be used for the infrastructure (e.g., 'azure', 'aws', 'gcp')")],
                      resource_group: Annotated[str, Field(description="The resource group to be used for the infrastructure")],
                      resources: Annotated[str, Field(description="The resources to be provisioned in the infrastructure")],
-                     repo_name: Annotated[str, Field(description="The repository name")]):
+                     repo_name: Annotated[str, Field(description="The repository name in the lower case")],
+                     deploy_target_name: Annotated[str, Field(description="The deployment target resource name Example: webapp,vm")]):
     try:
 
         logger.info("[TF_Builder] Tool called.")
@@ -240,6 +241,7 @@ async def TF_Builder(cloud_provider: Annotated[str, Field(description="The cloud
         prompt += f"Resource Group: {resource_group}\n"
         prompt += f"Resources: {resources}\n"
         prompt += f"Repository: {repo_name}\n"
+        prompt += f"for the terraform init, validate, plan and Apply steps, use working directory as {repo_name}/{deploy_target_name} Example: for Working directory is repo_name/webapp"
         prompt += f"Please use the below secret key names only for handling storing secret key names , AZURE_CREDENTIALS\n"
         prompt += f"The pipeline Output should contain only the YAML content without any explanations or markdown formatting.Use below template as reference.\n {tf_yml_template}"
         # logger.info(f"[TF_Builder] Prompt: {prompt}")
