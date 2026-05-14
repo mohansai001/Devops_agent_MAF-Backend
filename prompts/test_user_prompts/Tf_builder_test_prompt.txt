@@ -1,6 +1,6 @@
-Create a CI yaml script to save in workflowfiles for Below repository details of an Application 
+Create a tf.yml pipeline YAML script (CI/CD workflow file) to save in workflowfiles folder for Below repository details of an Application 
 Cloud Provider  = "Azure"
-Repo_name       = "Shashank-Repo"
+Repo_name       = "Shashank-Files"
 TENANT_ID       = "5f3ec70f-0215-4f44-bdab-f5beda7cdd74"
 SUBSCRIPTION_ID = "46269e09-e1e1-4067-af90-78fd27b1b64d"
 RESOURCE_GROUP  = "hari_check1"
@@ -12,4 +12,6 @@ ENABLE_SAST     = True
 ENABLE_DAST     = False
 DATABASE        = "sql"
 DATABASE_NAME   = "my_database"
+techstack       = "react"
+Framework       = "react"
 

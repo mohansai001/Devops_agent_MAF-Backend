@@ -1,4 +1,4 @@
-repo_name: "The name of the repository for which the infrastructure should be provisioned"
+repo_name: "The name of the repository to which the infrastructure should be provisioned. This is mandatory and will be coming from the user input."
 cloud_provider: "The cloud provider to be used for the infrastructure (e.g., 'azure', 'aws', 'gcp')"
 Resources: |
   ALL resources to be provisioned in a SINGLE JSON structure. Example:
@@ -19,3 +19,4 @@ Resources: |
     }
   }
   Resource names should be lowercase with underscores.
+  suppose the the deployment target is mentioned as app_service or app service, then it should be considered as webapp and for virtual_machine or virtual machine it should consider as vm

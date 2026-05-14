@@ -119,7 +119,7 @@ async def CI_Builder(tool: Annotated[str, Field(description="The CI tool to used
         # print("[CI_Builder] Preparing instructions for CI pipeline generation.")
         prompt = GeneratorPrompt("ci-builder-generator")
         instructions = prompt.render(repo_name=repo_name, branch_name=branch_name, ci_template=ci_template)
-        print("Instructions for CI pipeline generation:\n", instructions)
+        # print("Instructions for CI pipeline generation:\n", instructions)
 
         logger.info("[CI_Builder] Generating CI pipeline script using content generator...")
         # print("[CI_Builder] Generating CI pipeline script using content generator...")
@@ -186,12 +186,12 @@ async def CD_Builder(target: Annotated[str, Field(description="The target enviro
         cd_repo_name = "Workflow-files"
         logger.info(f"[CD_Builder] Setting up secrets for CD pipeline in the repository: {repo_name}")
         for key, value in azure_config.items():
-            set_github_secret(repo_name, key, value)
+            await set_github_secret(f"{REPO_OWNER}/{repo_name}", key, value)
         logger.info(f"[CD_Builder] Pushing CD Pipeline script into the repository: {repo_name}")
         # print(f"[CD_Builder] Pushing CD Pipeline script into the repository: {repo_name}")
         result = github_push_files(
             {f".github/workflows/{target}-cd.yml": cd_script},
-            cd_repo_name,
+            f"{REPO_OWNER}/{repo_name}",
             "Add CD pipeline",
             "main"
         )
@@ -228,6 +228,8 @@ async def TF_Builder(cloud_provider: Annotated[str, Field(description="The cloud
         prompt += f"Resource Group: {resource_group}\n"
         prompt += f"Resources: {resources}\n"
         prompt += f"Repository: {repo_name}\n"
+        prompt += f"Please use the below secret key names only for handling storing secret key names {list(azure_config.keys())}\n"
+        prompt += "The pipeline should be suitable for production use, following best practices for infrastructure as code and CI/CD. Output only the YAML content without any explanations or markdown formatting."
         # logger.info(f"[TF_Builder] Prompt: {prompt}")
         # print(f"[TF_Builder] Prompt: {prompt}")
 
@@ -235,22 +237,22 @@ async def TF_Builder(cloud_provider: Annotated[str, Field(description="The cloud
         # print("[TF_Builder] Generating Terraform pipeline script using content generator...")
         tf_script = create_yaml_scripts(prompt)
         
-        tf_repo_name = "Workflow-files"
-        logger.info(f"[CD_Builder] Setting up secrets for CD pipeline in {tf_repo_name}")
+        tf_repo_name = f"{REPO_OWNER}/Workflow-files"
+        logger.info(f"[TF_Builder] Setting up secrets for TF pipeline in {tf_repo_name}")
         for key, value in azure_config.items():
-            set_github_secret(tf_repo_name, key, value)
+           await set_github_secret(f"{tf_repo_name}", key, value)
         logger.info(f"[TF_Builder] Pushing Terraform Pipeline script into the repository: {tf_repo_name}")
         # print(f"[TF_Builder] Pushing Terraform Pipeline script into the repository: {tf_repo_name}")
         result = github_push_files(
             {f".github/workflows/{repo_name}-tf.yml": tf_script},
             tf_repo_name,
-            "Added CD pipeline",
+            "Added Terraform pipeline",
             "main"
         )
         logger.info(f"[TF_Builder] TF push result: {result}")
         # print(f"[TF_Builder] TF push result: {result}")
         logger.info(f"[TF_Builder] Waiting for terraform workflow to complete...")
-        workflow_status=wait_for_latest_workflow(f"{REPO_OWNER}/{tf_repo_name}", f"{repo_name}-tf.yml")
+        workflow_status=wait_for_latest_workflow(f"{tf_repo_name}", f"{repo_name}-tf.yml")
         if workflow_status==True:
             logger.info(f"[TF_Builder] Workflow status: {workflow_status}")
         else:

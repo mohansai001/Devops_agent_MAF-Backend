@@ -1,0 +1,15 @@
+create the CD pipeline yaml file for the project with given below details
+ 
+repo:Simple_Insurance_portal
+cloud_provider:azure
+CD_platform: github_actions
+language:react
+Framework: react
+target_deployment: webapp
+app_name:Insuerflow-web-application-j1h9
+resource_group:hari_check1
+branch_name:main
+ 
+
+Note: the artifact iscreate and the default location is ./artifacts
+so be mindful and check it if necessary.

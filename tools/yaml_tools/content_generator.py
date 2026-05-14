@@ -7,15 +7,15 @@ logger = get_logger(__name__)
 def create_yaml_scripts(instructions):
     logger.info("[create_yaml_scripts] Called.")
     print("[create_yaml_scripts] Called.")
-    logger.debug(f"[create_yaml_scripts] Instructions: {instructions}")
-    print(f"[create_yaml_scripts] Instructions: {instructions}")
+    # logger.debug(f"[create_yaml_scripts] Instructions: {instructions}")
+    # print(f"[create_yaml_scripts] Instructions: {instructions}")
     try: 
 
         response =get_azure_response(instructions)
         logger.info("[create_yaml_scripts] Azure response received.")
-        print("Azure response:\n", response,"================")
+        # print("Azure response:\n", response,"================")
         clean_yaml = clean_yaml_output(response)
-        logger.debug(f"[create_yaml_scripts] Clean YAML: {clean_yaml}")
+        # logger.debug(f"[create_yaml_scripts] Clean YAML: {clean_yaml}")
         print("=========================")
         return clean_yaml
 
