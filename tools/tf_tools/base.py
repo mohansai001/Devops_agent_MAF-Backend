@@ -167,7 +167,7 @@ async def TF_Module_builder(
                             # print(f"Error calling Azure AI for {file_name}: {azure_error}")
                             continue
                             
-                    elif file_name in ["main.tf", "outputs.tf"]:
+                    elif file_name in ["main.tf", "outputs.tf","providers.tf"]:
                         logger.info(f"[TF_Module_builder] Directly pushing {file_name} without AI processing")
                         # print(f"Directly pushing {file_name} without AI processing")
                         
