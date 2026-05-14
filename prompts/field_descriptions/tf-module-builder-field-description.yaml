@@ -1,22 +1,9 @@
-repo_name: "The name of the repository to which the infrastructure should be provisioned. This is mandatory and will be coming from the user input."
-cloud_provider: "The cloud provider to be used for the infrastructure (e.g., 'azure', 'aws', 'gcp')"
-Resources: |
-  ALL resources to be provisioned in a SINGLE JSON structure. Example:
-  {
-    "vm": {
-      "name": "my-vm",
-      "size": "Standard_B1ms",
-      "ram": "2GB"
-    },
-    "webapp": {
-      "name": "my-webapp",
-      "port": 80,
-      "location": "East US"
-    },
-    "resource_group": {
-      "name": "rg-main",
-      "location": "East US"
-    }
-  }
-  Resource names should be lowercase with underscores.
-  suppose the the deployment target is mentioned as app_service or app service, then it should be considered as webapp and for virtual_machine or virtual machine it should consider as vm
+repo_name: "The github repository name. MUST be taken exactly as-is from the 'Repo_name' field in the user prompt. Do NOT infer, generate, or substitute any other value."
+cloud_provider: "The cloud provider to be used for the infrastructure (e.g., 'azure', 'aws', 'gcp'). Extract from the prompt."
+deployment_target_name: "Name of the deployment target (e.g., 'Azure App Service', 'AWS EC2'). Extract from the prompt."
+target_service_name: "Name of the target service where application should be deployed in the cloud provider."
+target_service_location: "Location of the target service (e.g., 'eastus', 'westus'). Extract from the prompt."
+target_service_sku: "SKU of the target service (e.g., 'S1', 'P1V2'). Extract from the prompt."
+resource_group_name: "Name of the resource group where the infrastructure will be deployed."
+resource_group_location: "Location of the resource group (e.g., 'eastus', 'westus'). Extract from the prompt."
+

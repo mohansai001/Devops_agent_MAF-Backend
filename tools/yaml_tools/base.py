@@ -14,8 +14,9 @@ import os
 from utils.config import AZURE_AI_API_KEY,github_token,azure_config
 from utils.github_client import get_github_client
 from adapters.github.git_write import set_github_secret
-from adapters.github.git_read import wait_for_latest_workflow
+from adapters.github.git_read import wait_for_latest_workflow,github_read_contents
 from utils.prompt_manager_v2 import GeneratorPrompt, ToolDescriptionPrompt
+import json
 
 # auth = Auth.Token(github_token)
 # g = get_github_client() 
@@ -188,6 +189,7 @@ async def CD_Builder(target: Annotated[str, Field(description="The target enviro
         logger.info(f"[CD_Builder] Setting up secrets for CD pipeline in the repository: {repo_name}")
         for key, value in azure_config.items():
             await set_github_secret(f"{REPO_OWNER}/{repo_name}", key, value)
+        
         logger.info(f"[CD_Builder] Pushing CD Pipeline script into the repository: {repo_name}")
         # print(f"[CD_Builder] Pushing CD Pipeline script into the repository: {repo_name}")
         result = github_push_files(
@@ -222,15 +224,17 @@ async def TF_Builder(cloud_provider: Annotated[str, Field(description="The cloud
         # print("[TF_Builder] Tool called.")
         logger.info(f"[TF_Builder] Input parameters - Cloud Provider: {cloud_provider}, Resource Group: {resource_group}, Resources: {resources}, Repo Name: {repo_name}")
         # print(f"[TF_Builder] Input parameters - Cloud Provider: {cloud_provider}, Resource Group: {resource_group}, Resources: {resources}, Repo Name: {repo_name}")
-
+        template_path="yaml-templates/github-actions/cd/terraform-cd.yml"
+        tf_yml_template=github_read_contents(template_path, repo_owner=REPO_OWNER, repo_name="Yaml-Templates")
         logger.info("[TF_Builder] Preparing prompt for Terraform YAML generation.")
+        print("Azure Secret keys:", list(azure_config.keys()))
         # print("[TF_Builder] Preparing prompt for Terraform YAML generation.")
-        prompt = f"You are a senior Devops Platform Engineer. Generate a production grade Terraform pipeline yml for {cloud_provider} with the following details:\n\n"
+        prompt = f"You are a senior Devops Platform Engineer. Generate a Terraform pipeline yml for {cloud_provider} with the following details:\n\n"
         prompt += f"Resource Group: {resource_group}\n"
         prompt += f"Resources: {resources}\n"
         prompt += f"Repository: {repo_name}\n"
-        prompt += f"Please use the below secret key names only for handling storing secret key names {list(azure_config.keys())}\n"
-        prompt += "The pipeline should be suitable for production use, following best practices for infrastructure as code and CI/CD. Output only the YAML content without any explanations or markdown formatting."
+        prompt += f"Please use the below secret key names only for handling storing secret key names , AZURE_CREDENTIALS\n"
+        prompt += f"The pipeline Output should contain only the YAML content without any explanations or markdown formatting.Use below template as reference.\n {tf_yml_template}"
         # logger.info(f"[TF_Builder] Prompt: {prompt}")
         # print(f"[TF_Builder] Prompt: {prompt}")
 
@@ -240,8 +244,9 @@ async def TF_Builder(cloud_provider: Annotated[str, Field(description="The cloud
         
         tf_repo_name = f"{REPO_OWNER}/Workflow-files"
         logger.info(f"[TF_Builder] Setting up secrets for TF pipeline in {tf_repo_name}")
-        for key, value in azure_config.items():
-           await set_github_secret(f"{tf_repo_name}", key, value)
+        # for key, value in azure_config.items():
+        #    await set_github_secret(f"{tf_repo_name}", key, value)
+        await set_github_secret(f"{tf_repo_name}", "AZURE_CREDENTIALS", json.dumps(azure_config))
         logger.info(f"[TF_Builder] Pushing Terraform Pipeline script into the repository: {tf_repo_name}")
         # print(f"[TF_Builder] Pushing Terraform Pipeline script into the repository: {tf_repo_name}")
         result = github_push_files(

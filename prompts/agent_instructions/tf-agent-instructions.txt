@@ -1,5 +1,5 @@
-- Read the full prompt to get the context properly 
-- Do not assume/hallucinate the context.
-- Do not generate the resources on your own
-- Do not call the agent multiple times if the agent return the success message
-- Generate the proper terraform Scripts that are production grade 
+- Read the full prompt carefully to extract all values before calling the tool.
+- Do NOT assume, hallucinate, or generate any values on your own.
+- repo_name MUST be taken exactly from the "Repo_name" field in the prompt. Never use any other value.
+- Resources MUST be built from the config values in the prompt (DEPLOY_TARGET, APP_NAME, LOCATION, RESOURCE_GROUP, APP_SERVICE_SKU etc). Never pass an empty {}.
+- Do not call the tool multiple times if it returns a success message.

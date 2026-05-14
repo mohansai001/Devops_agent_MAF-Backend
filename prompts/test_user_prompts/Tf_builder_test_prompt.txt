@@ -1,17 +1,28 @@
 Create a tf.yml pipeline YAML script (CI/CD workflow file) to save in workflowfiles folder for Below repository details of an Application 
-Cloud Provider  = "Azure"
-Repo_name       = "Shashank-Files"
-TENANT_ID       = "5f3ec70f-0215-4f44-bdab-f5beda7cdd74"
-SUBSCRIPTION_ID = "46269e09-e1e1-4067-af90-78fd27b1b64d"
-RESOURCE_GROUP  = "hari_check1"
-LOCATION        = "eastus"
-APP_NAME        = "Insuerflow-web-application-j1h9"
-DEPLOY_TARGET   = "webapp"
-BRANCH          = "main"
-ENABLE_SAST     = True
-ENABLE_DAST     = False
-DATABASE        = "sql"
-DATABASE_NAME   = "my_database"
-techstack       = "react"
-Framework       = "react"
+{
+  "Repo_name":"Shashank-workflow",
+  "config": {
+    "RESOURCE_GROUP": "my-resource-group",
+    "LOCATION": "eastus",
+    "APP_NAME": "my-web-app",
+    "DEPLOY_TARGET": "webapp",
+    "ENVIRONMENT": "staging",
+    "BRANCH": "main",
+    "ENABLE_SAST": true,
+    "ENABLE_DAST": false,
+    "APP_SERVICE_SKU": "B1"
+  },
+
+ 
+
+  "techstack": {
+    "language": "react",
+    "framework": "react",
+    "buildtool": "npm",
+    "hasDockerfile": true,
+    "hasHelm": false,
+    "hasTerraform": true
+  },
+  "startup_command": "npm start",
+}
 

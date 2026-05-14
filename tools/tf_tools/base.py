@@ -2,6 +2,7 @@ from typing import Annotated
 from pydantic import Field
 from agent_framework import tool #type: ignore
 import json
+from typing import Dict, Any
 from ..yaml_tools.base import github_push_files
 from utils.logger import get_logger
 from adapters.github.git_search import github_find_folder
@@ -35,13 +36,31 @@ def get_azure_response(content, file_name, cloud_provider, resource_group_dict, 
 from adapters.github.git_read import github_read_contents
 from utils.prompt_manager_v2 import ToolFieldsPrompt
 
-""""Version 3"""
+""""Version 3 - must be refactored"""
 _tf_module_builder_feilds = ToolFieldsPrompt("tf-module-builder-field-description")
 @tool(name="TF_Module_builder", description="Builds Terraform modules by understanding the requirements such as the desired infrastructure, cloud provider, and specific configurations.", approval_mode="never_require")
 async def TF_Module_builder(
-    repo_name: Annotated[str, Field(description=_tf_module_builder_feilds.get("repo_name"))],
     cloud_provider: Annotated[str, Field(description= _tf_module_builder_feilds.get("cloud_provider"))],
-    Resources: Annotated[str, Field(description=_tf_module_builder_feilds.get("Resources"))]):
+    deploy_target_name: Annotated[str, Field(description=_tf_module_builder_feilds.get("deployment_target_name"))],
+    target_service_name: Annotated[str, Field(description=_tf_module_builder_feilds.get("target_service_name"))],
+    target_service_location: Annotated[str, Field(description=_tf_module_builder_feilds.get("target_service_location"))],
+    target_service_sku: Annotated[str, Field(description=_tf_module_builder_feilds.get("target_service_sku"))],
+    resource_group_name: Annotated[str, Field(description=_tf_module_builder_feilds.get("resource_group_name"))],
+    resource_group_location: Annotated[str, Field(description=_tf_module_builder_feilds.get("resource_group_location"))],
+    repo_name: str = "Shashank-workflow"
+):
+
+    Resources = { 
+        deploy_target_name: {
+            "name" : target_service_name,
+            "location": target_service_location,
+            "sku": target_service_sku   
+        },
+        "resource_group": {
+            "name": resource_group_name,
+            "location": resource_group_location
+        }
+    }
     logger.info("[TF_Module_builder] Building Terraform configuration...")
     # print("Building Terraform configuration...")
     logger.info(f"[TF_Module_builder] Repository Name: {repo_name}")
@@ -49,7 +68,8 @@ async def TF_Module_builder(
     # print("Cloud Provider:", cloud_provider)
     logger.info(f"[TF_Module_builder] Resources: {Resources}")
     # print("Resources:", Resources)
-    
+    # exit(0)
+
     try:
         # Parse resources if it's a string
         if isinstance(Resources, str):
@@ -129,6 +149,7 @@ async def TF_Module_builder(
                                 resource_group_dict=resource_group_dict,
                                 resource=resource_config
                             )
+                            logger.info(f"[TF_Module_builder] Azure AI response for {file_name} received : {updated_content}")
                             
                             if updated_content and not updated_content.startswith("Azure Error:"):
                                 # Create proper folder structure: repo-name/resource-type/file
