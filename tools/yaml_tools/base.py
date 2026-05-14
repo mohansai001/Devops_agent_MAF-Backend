@@ -17,7 +17,7 @@ from adapters.github.git_write import set_github_secret
 from adapters.github.git_read import wait_for_latest_workflow,github_read_contents
 from utils.prompt_manager_v2 import GeneratorPrompt, ToolDescriptionPrompt
 import json
-
+from adapters.github.git_read import get_artifact_name_from_run
 # auth = Auth.Token(github_token)
 # g = get_github_client() 
 g = get_github_client(github_token)
@@ -77,6 +77,7 @@ def github_push_files(files_to_push, repo_name, commit_message, branch="main"):
             # existing_file = repo.get_contents(file_path, ref=branch)
             # Update existing file
             response = github_commit_files(
+                g=g,
                 repo=repo_name,
                 file_path=file_path,
                 commit_message=commit_message,
@@ -139,12 +140,15 @@ async def CI_Builder(tool: Annotated[str, Field(description="The CI tool to used
         logger.info(f"[CI_Builder] CI push result: {result}")
         workflow_status=wait_for_latest_workflow(repo_name=repo_name,branch=branch_name, workflow_file_name=f"{techstack}-ci.yml")
         if workflow_status==True:
+            art_name, workflow_name = get_artifact_name_from_run(repo_name=repo_name, workflow_file_name=f"{techstack}-ci.yml", branch=branch_name)
             logger.info(f"[CI_Builder] Workflow status: {workflow_status}")
         else:
             logger.error(f"[CI_Builder] Workflow failed or timed out")
             return f"Workflow failed or timed out"
         # print(f"[CD_Builder] CD push result: {result}")
-        return f"TASK COMPLETED: {ci_script}"
+        return {"TASK COMPLETED" : ci_script,
+                "Artifact_name" : art_name,
+                "Workflow_name": workflow_name}
         # print(f"[CI_Builder] CI push result: {result}")
     except Exception as e:
         logger.error(f"[CI_Builder] Error occurred while creating CI pipeline: {e}", exc_info=True)
@@ -155,7 +159,9 @@ async def CI_Builder(tool: Annotated[str, Field(description="The CI tool to used
 async def CD_Builder(target: Annotated[str, Field(description="The target environment for the CD pipeline")],
                      techstack: Annotated[str, Field(description="The tech stack that is used to develop the application and in the repo")],
                      repo_name: Annotated[str, Field(description="The repository name")],
-                     tool: Annotated[str, Field(description="The CI tool to use")]):
+                     tool: Annotated[str, Field(description="The CI tool to use")],
+                     artifact_name: Annotated[str, Field(description="The artifact name to be used for the CD pipeline")],
+                     workflow_name: Annotated[str, Field(description="The workflow name to be used for the CD pipeline")]):
     # Assuming Tech stack, tool, Repository name and Framework comes from the orchestrator agent
     try:
         logger.info("[CD_Builder] Tool called.")
@@ -179,7 +185,7 @@ async def CD_Builder(target: Annotated[str, Field(description="The target enviro
         logger.info("[CD_Builder] Preparing instructions for CD pipeline generation.")
         # print("[CD_Builder] Preparing instructions for CD pipeline generation.")
         prompt = GeneratorPrompt("cd-builder-generator")
-        instructions = prompt.render(repo_name=repo_name, cd_template=cd_template)
+        instructions = prompt.render(repo_name=repo_name, cd_template=cd_template, artifact_name=artifact_name, workflow_name=workflow_name)
 
         logger.info("[CD_Builder] Generating CD pipeline script using content generator...")
         # print("[CD_Builder] Generating CD pipeline script using content generator...")
@@ -187,14 +193,15 @@ async def CD_Builder(target: Annotated[str, Field(description="The target enviro
         # Make the repo dynamic while deploying...
         cd_repo_name = "Workflow-files"
         logger.info(f"[CD_Builder] Setting up secrets for CD pipeline in the repository: {repo_name}")
-        for key, value in azure_config.items():
-            await set_github_secret(f"{REPO_OWNER}/{repo_name}", key, value)
+        # for key, value in azure_config.items():
+        #     await set_github_secret(f"{REPO_OWNER}/{repo_name}", key, value) #type: ignore
+        await set_github_secret(f"{repo_name}", "AZURE_CREDENTIALS", json.dumps(azure_config))
         
         logger.info(f"[CD_Builder] Pushing CD Pipeline script into the repository: {repo_name}")
         # print(f"[CD_Builder] Pushing CD Pipeline script into the repository: {repo_name}")
         result = github_push_files(
             {f".github/workflows/{target}-cd.yml": cd_script},
-            f"{REPO_OWNER}/{repo_name}",
+            f"{repo_name}",
             "Add CD pipeline",
             "main"
         )

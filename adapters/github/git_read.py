@@ -6,6 +6,7 @@ from github.GithubException import GithubException #type: ignore
 
 from utils.logger import get_logger
 from utils.github_client import get_github_client
+from utils.config import hari_github_token as GITHUB_TOKEN
 
 logger=get_logger(__name__)
 REPO_OWNER = "RAGHAVENDRA-VAM"
@@ -121,9 +122,156 @@ def wait_for_latest_workflow(
                 print(f"Monitoring error: {str(e)}")
                 time.sleep(poll_interval)
 
+def get_artifact_name_from_run(repo_name: str, workflow_file_name: str, branch: str = "main"):
+    """
+    Fetches the artifact name directly from the GitHub Artifacts API
+    for the latest completed workflow run.
+    """
+    repo = g.get_repo(repo_name)
+    
+    try:
+        workflow = repo.get_workflow(workflow_file_name)
+        runs = workflow.get_runs(branch=branch, status="completed")
+        
+        if runs.totalCount == 0:
+            print("No completed runs found.")
+            return None, None
+        
+        latest_run = runs[0]
+        print(f"Checking artifacts for Run ID: {latest_run.id}")
+        
+        # List all artifacts for this run
+        artifacts = repo.get_artifacts()  # or use the run-specific endpoint below
+        
+        # Use raw requester for run-scoped artifacts
+        _, response = repo._requester.requestJsonAndCheck(
+            "GET",
+            f"/repos/{repo_name}/actions/runs/{latest_run.id}/artifacts"
+        )
+        
+        artifact_names = [artifact["name"] for artifact in response.get("artifacts", [])]
+        workflow_name = latest_run.name
+        print(f"Found artifacts: {artifact_names}")
+        
+        # Return the first match or filter by pattern
+        for name in artifact_names:
+            if "drop" in name:  # adjust filter to your naming convention
+                return name, workflow_name
+        if artifact_names:
+
+            return artifact_names[0], workflow_name
+        else:
+            return None, None
+    
+    except Exception as e:
+        print(f"Error fetching artifacts: {e}")
+        return None, None
+    
+
+import zipfile
+import io
+import re    
+
+def get_deployment_url_from_logs(repo_name: str, workflow_file_name: str, branch: str = "main") -> str | None:
+    repo = g.get_repo(repo_name)
+    
+    try:
+        workflow = repo.get_workflow(workflow_file_name)
+        runs = workflow.get_runs(branch=branch, status="completed")
+        
+        if runs.totalCount == 0:
+            print("No completed runs found.")
+            return None
+        
+        latest_run = runs[0]
+        
+        # Download logs zip
+        _, raw_zip = repo._requester.requestBlobAndCheck(
+            "GET",
+            f"/repos/{repo_name}/actions/runs/{latest_run.id}/logs"
+        )
+        
+        with zipfile.ZipFile(io.BytesIO(raw_zip)) as zf:
+            for file_name in zf.namelist():
+                # Target deploy job log file
+                if "deploy" in file_name.lower():
+                    with zf.open(file_name) as log_file:
+                        log_content = log_file.read().decode("utf-8", errors="replace")
+                        
+                        # Match any HTTP/HTTPS URL in the logs
+                        match = re.search(
+                            r'https?://[^\s\'"<>\]]+',
+                            log_content
+                        )
+                        if match:
+                            return match.group(0)
+        
+        print("Deployment URL not found in logs.")
+        return None
+    
+    except Exception as e:
+        print(f"Error retrieving deployment URL: {e}")
+        return None
+import requests  
+def get_cd_run_metadata(repo_name: str, workflow_file_name: str, branch: str = "main") -> dict | None:
+    repo = g.get_repo(repo_name)
+
+    try:
+        workflow = repo.get_workflow(workflow_file_name)
+        runs = workflow.get_runs(branch=branch, status="completed")
+
+        if runs.totalCount == 0:
+            print("No completed runs found.")
+            return None
+
+        latest_run = runs[0]
+
+        # ── Fetch logs via requests (handles redirect) ────────────────────
+        headers = {
+            "Authorization": f"token {GITHUB_TOKEN}",
+            "Accept": "application/vnd.github+json"
+        }
+        response = requests.get(latest_run.logs_url, headers=headers, allow_redirects=True)
+        response.raise_for_status()
+
+        deployment_url = None
+
+        with zipfile.ZipFile(io.BytesIO(response.content)) as zf:
+            print("Log files:", zf.namelist())
+
+            for file_name in zf.namelist():
+                if "deploy" in file_name.lower():
+                    with zf.open(file_name) as log_file:
+                        log_content = log_file.read().decode("utf-8", errors="replace")
+
+                        # Primary: Azure App Service URL line
+                        match = re.search(
+                            r'App Service Application URL:\s*(https?://[^\s\'"<>\]]+)',
+                            log_content,
+                            re.IGNORECASE
+                        )
+                        if match:
+                            deployment_url = match.group(1)
+                            break
+
+        return {
+            "workflow_name" : latest_run.name,
+            "run_id"        : latest_run.id,
+            "branch"        : latest_run.head_branch,
+            "conclusion"    : latest_run.conclusion,
+            "deployment_url": deployment_url   # ✅ https://testingwebapp-xxx.azurewebsites.net
+        }
+
+    except zipfile.BadZipFile:
+        print("Not a valid zip — check token or redirect.")
+        return None
+    except Exception as e:
+        print(f"Error fetching CD metadata: {e}")
+        return None
+
 if __name__ == "__main__":
     repo_name = "Hari-var/insure-flow-webapp"
-    file_name = "python-ci.yml"
+    file_name = "react-cd.yml"
     branch = "master"
-    wait_for_latest_workflow(repo_name=repo_name, workflow_file_name=file_name, branch=branch)
- 
+    result = get_cd_run_metadata(repo_name=repo_name, workflow_file_name=file_name, branch=branch)
+    print(result)

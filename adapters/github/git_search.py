@@ -1,12 +1,16 @@
+import os
+import sys
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../")))
 from utils.github_client import get_github_client 
 from utils.logger import get_logger
+from utils.config import github_token
 
 REPO_OWNER = "RAGHAVENDRA-VAM"
 
 logger = get_logger(__name__)
-g= get_github_client()
 
-def github_find_folder(cloud, resource_type, repo_owner=REPO_OWNER, repo_name="Terraform_modules"):
+
+def github_find_folder(cloud, resource_type, repo_owner=REPO_OWNER, repo_name="Terraform_modules", g=get_github_client(github_token)):
     logger.info(f"[github_find_folder] Searching for modules/{cloud}/{resource_type}")
     try:
         
@@ -27,3 +31,6 @@ def github_find_folder(cloud, resource_type, repo_owner=REPO_OWNER, repo_name="T
         logger.error(f"[github_find_folder] Error searching GitHub repo: {e}", exc_info=True)
         print(f"Error searching GitHub repo: {e}")
         return []
+    
+if __name__ == "__main__":
+    print(github_find_folder("azure", "webapp"))

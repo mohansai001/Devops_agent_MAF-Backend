@@ -8,6 +8,7 @@ from utils.crud_ops import get_triggered_record_by_id
 from sqlalchemy.orm import Session
 
 
+
 logger = get_logger(__name__)
 
 async def fallback_pipeline(db: Session, id: int) :
@@ -23,12 +24,39 @@ async def fallback_pipeline(db: Session, id: int) :
     logger.info("[yaml_agent] Called with prompt.")
     print("[yaml_agent] Called with prompt.")
     response = await CI_Builder(repo_name=repo_name, techstack=language, tool=tool_name, branch_name=branch_name)
+    artifact_name = response.get("Artifact_name") #type: ignore
+    workflow_name = response.get("Workflow_name") #type: ignore
     logger.info("[terraform_agent] Called with prompt.")
     print("[terraform_agent] Called with prompt.")
-    tf_repo_name =
+    cloud_provider = "azure"
+    deploy_target_name = str(record.config.get("DEPLOY_TARGET"))
+    target_service_name = str(record.config.get("APP_NAME"))
+    target_service_location = str(record.config.get("LOCATION"))
+    target_service_sku = str(record.config.get("APP_SERVICE_SKU"))
+    resource_group_name = str(record.config.get("RESOURCE_GROUP"))
+    resource_group_location = str(record.config.get("LOCATION"))
+    repo_name = "Shashank-workflow"
 
 
-    print(response)
+    # response1 = await TF_Module_builder(
+    #     repo_name="Shashank-workflow",
+    #     cloud_provider=cloud_provider,
+    #     deploy_target_name=deploy_target_name,
+    #     target_service_name=target_service_name,
+    #     target_service_location=target_service_location,
+    #     target_service_sku=target_service_sku,
+    #     resource_group_name=resource_group_name,
+    #     resource_group_location=resource_group_location
+    # )
+
+    # response2 = TF_Builder()
+
+    response3 = CD_Builder(tool=tool_name,repo_name=repo_name, artifact_name=artifact_name, workflow_name= workflow_name,techstack=language,target = cloud_provider) #type: ignore
+
+
+    
+
+    # print(response1)
 
 import asyncio
 if __name__ == "__main__":

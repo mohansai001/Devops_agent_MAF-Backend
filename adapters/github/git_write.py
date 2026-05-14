@@ -10,14 +10,14 @@ from utils.logger import get_logger
 
 
 logger = get_logger(__name__) 
-g = get_github_client()
 
 def commit_files(
     repo: str,
     file_path: str,
     commit_message: str,
     branch: str,
-    content: str
+    content: str,
+    g =  get_github_client()
 ):
     print(f"[github_agent] Committing changes to {repo}/{file_path} on branch '{branch}'")
     logger.info(f"[github_agent] Committing changes to {repo}/{file_path} on branch '{branch}'")
@@ -95,8 +95,8 @@ def commit_files(
         return f"Unexpected error while committing: {str(e)}"
 
 
-
-async def set_github_secret(repo_full_name: str, secret_name: str, secret_value: str) -> None:
+from github import Github #type: ignore
+async def set_github_secret(repo_full_name: str, secret_name: str, secret_value: str, g : Github = get_github_client()) -> None:
     try:
         print("Repo Full Name :", repo_full_name)
 
