@@ -13,6 +13,7 @@ import asyncio
 import os
 from utils.config import AZURE_AI_API_KEY,github_token
 from utils.github_client import get_github_client
+from utils.prompt_manager_v2 import GeneratorPrompt, ToolDescriptionPrompt
 
 # auth = Auth.Token(github_token)
 g = get_github_client() 
@@ -85,7 +86,7 @@ def github_push_files(files_to_push, repo_name, commit_message, branch="main"):
 
 
 
-@tool(name="CI_builder", description="Builds a CI pipeline based on the given requirements", approval_mode="never_require")
+@tool(name="CI_builder", description=str(ToolDescriptionPrompt("ci-builder-tool-description")), approval_mode="never_require")
 async def CI_Builder(tool: Annotated[str, Field(description="The CI tool to used for the application the tool name should be in lower case without spaces, the sapce should be replaces with '_' .Example : github_actions")],
                      techstack: Annotated[str, Field(description="The tech stack that is used to develop the application and in the repository, The tech stack name should be in lower case. Example : python")],
                      repo_name: Annotated[str, Field(description="The repository name")]):
@@ -113,11 +114,8 @@ async def CI_Builder(tool: Annotated[str, Field(description="The CI tool to used
 
         logger.info("[CI_Builder] Preparing instructions for CI pipeline generation.")
         # print("[CI_Builder] Preparing instructions for CI pipeline generation.")
-        instructions = f"""You are a Senior DevOps Engineer. 
-Your job is to take a CI/CD pipeline YAML template and generate a complete, fully working pipeline script.
-- Replace placeholders with real, working values
-- Use '{repo_name}' as the repository name wherever needed
-- Output ONLY valid YAML, no explanations or markdown. Below is the attached ci template {ci_template}"""
+        prompt = GeneratorPrompt("ci-builder-generator")
+        instructions = prompt.render(repo_name=repo_name, ci_template=ci_template)
         print("Instructions for CI pipeline generation:\n", instructions)
 
         logger.info("[CI_Builder] Generating CI pipeline script using content generator...")
@@ -140,7 +138,7 @@ Your job is to take a CI/CD pipeline YAML template and generate a complete, full
         # print(f"[CI_Builder] Error occurred while creating CI pipeline: {e}")
 
 
-@tool(name="CD_builder", description="Builds a CD pipeline based on the given requirements", approval_mode="never_require")
+@tool(name="CD_builder", description=str(ToolDescriptionPrompt("cd-builder-tool-description")), approval_mode="never_require")
 async def CD_Builder(target: Annotated[str, Field(description="The target environment for the CD pipeline")],
                      techstack: Annotated[str, Field(description="The tech stack that is used to develop the application and in the repo")],
                      repo_name: Annotated[str, Field(description="The repository name")],
@@ -167,11 +165,8 @@ async def CD_Builder(target: Annotated[str, Field(description="The target enviro
 
         logger.info("[CD_Builder] Preparing instructions for CD pipeline generation.")
         # print("[CD_Builder] Preparing instructions for CD pipeline generation.")
-        instructions = f"""You are a Senior DevOps Engineer. 
-Your job is to take a CI/CD pipeline YAML template and generate a complete, fully working pipeline script.
-- Replace placeholders with real, working values
-- Use '{repo_name}' as the repository name wherever needed
-- Output ONLY valid YAML, no explanations or markdown. Below is the attached cd template {cd_template}"""
+        prompt = GeneratorPrompt("cd-builder-generator")
+        instructions = prompt.render(repo_name=repo_name, cd_template=cd_template)
 
         logger.info("[CD_Builder] Generating CD pipeline script using content generator...")
         # print("[CD_Builder] Generating CD pipeline script using content generator...")
@@ -193,7 +188,7 @@ Your job is to take a CI/CD pipeline YAML template and generate a complete, full
         # print(f"[CD_Builder] Error occurred while creating CD pipeline: {e}")
    
 
-@tool(name="TF_Builder", description="Builds a Terraform yaml based on the given requirements", approval_mode="never_require")
+@tool(name="TF_Builder", description=str(ToolDescriptionPrompt("tf-builder-tool-description")), approval_mode="never_require")
 async def TF_Builder(cloud_provider: Annotated[str, Field(description="The cloud provider to be used for the infrastructure (e.g., 'azure', 'aws', 'gcp')")],
                      resource_group: Annotated[str, Field(description="The resource group to be used for the infrastructure")],
                      resources: Annotated[str, Field(description="The resources to be provisioned in the infrastructure")],

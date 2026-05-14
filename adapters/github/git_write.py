@@ -19,7 +19,8 @@ def commit_files(
     branch: str,
     content: str
 ):
-    print(f"Committing changes to {repo}/{file_path} on branch '{branch}'")
+    print(f"[github_agent] Committing changes to {repo}/{file_path} on branch '{branch}'")
+    logger.info(f"[github_agent] Committing changes to {repo}/{file_path} on branch '{branch}'")
 
     # --- Input validation ---
     if not repo or "/" not in repo:
@@ -39,6 +40,7 @@ def commit_files(
             repository = g.get_repo(repo)
         except GithubException as e:
             if e.status == 404:
+                logger.info(f"[github_agent] Repository '{repo}' not found or not accessible.")
                 return f"Repository '{repo}' not found or not accessible."
             raise
 
@@ -49,6 +51,7 @@ def commit_files(
             if e.status == 404:
                 # List available branches to help the agent self-correct
                 available = [b.name for b in repository.get_branches()]
+                logger.info(f"[github_agent] Branch '{branch}' not found. Available branches: {available}")
                 return f"Branch '{branch}' not found. Available branches: {available}"
             raise
 

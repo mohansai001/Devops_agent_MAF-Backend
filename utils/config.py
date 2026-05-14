@@ -3,7 +3,8 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-github_token = os.getenv("GITHUB_TOKEN")
+github_token = os.getenv("RAG_GITHUB_TOKEN")
+hari_github_token = os.getenv("HARI_GITHUB_TOKEN")
 model_subscription_key = os.getenv("subscription_key")
 AZURE_AI_API_KEY = os.getenv("subscription_key")
 

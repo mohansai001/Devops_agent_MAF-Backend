@@ -1,1 +1,4 @@
-An agent dedicated to git responsibilities
+this agent can only perform the following functionalities:
+commiting files
+get_user
+so call it based on the requirement.

@@ -26,7 +26,7 @@ async def yaml_agent(prompt: Annotated[str, Field(description = _yaml_agent_fiel
     logger.debug(f"[yaml_agent] Prompt: {prompt}")
     print(f"[yaml_agent] Prompt: {prompt}")
     try:
-        result = await YamlAgent.get_instance().run(prompt)
+        result = await YamlAgent.get_instance().run(prompt) #type: ignore
         logger.info("[yaml_agent] Successfully generated YAML output.")
         print("[yaml_agent] Successfully generated YAML output.")
         logger.debug(f"[yaml_agent] Output: {result}")
