@@ -1,7 +1,8 @@
 Generate the required Terraform `.tf` files dynamically based on the `DEPLOY_TARGET` and configuration values provided in the JSON.
 
 {
-  "Repository name":"Shashank-workflow",
+
+
   "config": {
     "RESOURCE_GROUP": "my-resource-group",
     "LOCATION": "eastus",

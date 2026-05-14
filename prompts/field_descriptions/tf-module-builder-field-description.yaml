@@ -1,19 +1,9 @@
 repo_name: "The github repository name. MUST be taken exactly as-is from the 'Repo_name' field in the user prompt. Do NOT infer, generate, or substitute any other value."
 cloud_provider: "The cloud provider to be used for the infrastructure (e.g., 'azure', 'aws', 'gcp'). Extract from the prompt."
-Resources: |
-  ALL resources to be provisioned in a SINGLE JSON structure. MUST be populated from the config values in the prompt. NEVER pass an empty object {}.
-  Build the JSON using DEPLOY_TARGET as the resource key and fill values from the config.
-  Always include resource_group using RESOURCE_GROUP and LOCATION from the config.
-  Example structure:
-  {
-    "webapp": {
-      "name": "<APP_NAME>",
-      "location": "<LOCATION>",
-      "sku": "<APP_SERVICE_SKU>"
-    },
-    "resource_group": {
-      "name": "<RESOURCE_GROUP>",
-      "location": "<LOCATION>"
-    }
-  }
-  DEPLOY_TARGET aliases: app_service, app service, web_app, web app → use "webapp". virtual_machine, virtual machine → use "vm".
+deployment_target_name: "Name of the deployment target (e.g., 'Azure App Service', 'AWS EC2'). Extract from the prompt."
+target_service_name: "Name of the target service where application should be deployed in the cloud provider."
+target_service_location: "Location of the target service (e.g., 'eastus', 'westus'). Extract from the prompt."
+target_service_sku: "SKU of the target service (e.g., 'S1', 'P1V2'). Extract from the prompt."
+resource_group_name: "Name of the resource group where the infrastructure will be deployed."
+resource_group_location: "Location of the resource group (e.g., 'eastus', 'westus'). Extract from the prompt."
+

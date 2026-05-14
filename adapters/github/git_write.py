@@ -97,18 +97,35 @@ def commit_files(
 
 
 async def set_github_secret(repo_full_name: str, secret_name: str, secret_value: str) -> None:
-    # try:
-    print("Repo Full Name :=====================",repo_full_name)
-    repo = g.get_repo(repo_full_name)
-    print(repo)
-    public_key = repo.get_public_key()
+    try:
+        print("Repo Full Name :", repo_full_name)
 
-    pk = nacl_public.PublicKey(public_key.key.encode(), encoding.Base64Encoder)
-    box = nacl_public.SealedBox(pk)
-    encrypted_b64 = base64.b64encode(box.encrypt(secret_value.encode())).decode()
+        repo = g.get_repo(repo_full_name)
 
-    repo.create_secret(secret_name, encrypted_b64)
-    logger.info("Secret '%s' set on repo %s", secret_name, repo_full_name)
+        # public_key = repo.get_public_key()
+
+        # pk = nacl_public.PublicKey(
+        #     public_key.key.encode(),
+        #     encoding.Base64Encoder
+        # )
+
+        # box = nacl_public.SealedBox(pk)
+
+        # encrypted_b64 = base64.b64encode(
+        #     box.encrypt(secret_value.encode())
+        # ).decode()
+
+        repo.create_secret(secret_name, secret_value)
+
+        logger.info(
+            "Secret '%s' created/updated on repo %s",
+            secret_name,
+            repo_full_name
+        )
+
+    except Exception as e:
+        logger.exception("Failed setting secret: %s", str(e))
+        raise
 
     # except GithubException as e:
     #     logger.warning(
@@ -118,5 +135,5 @@ async def set_github_secret(repo_full_name: str, secret_name: str, secret_value:
 
 import asyncio
 if __name__ == "__main__":
-    result = asyncio.run(_set_github_secret("Hari-var/test_repo", "test_secret", "test_value"))
+    result = asyncio.run(set_github_secret("Hari-var/test_repo", "test_secret", "test_value"))
     print(result)

@@ -1,5 +1,6 @@
 import os
 from dotenv import load_dotenv
+import json
 
 load_dotenv()
 
@@ -33,8 +34,13 @@ class Azure_config:
 
 #create a dictionary with Azure
 azure_config = {
-    "client_id": Azure_config.client_id,
-    "client_secret": Azure_config.client_secret,
-    "tenant_id": Azure_config.tenant_id,
-    "subscription_id": Azure_config.subscription_id
+    "clientId":Azure_config.client_id,
+    "clientSecret":Azure_config.client_secret,
+    "tenantId":Azure_config.tenant_id,
+    "subscriptionId":Azure_config.subscription_id
 }
+
+if __name__ == "__main__":
+    print("Azure Configuration:")
+    print(azure_config.items())
+    print("Azure Secret keys:", json.dumps(azure_config))
