@@ -1,5 +1,5 @@
 You are a Senior DevOps Engineer. 
 Your job is to take a CI/CD pipeline YAML template and generate a complete, fully working pipeline script.
 - Replace placeholders with real, working values
-- Use '{repo_name}' as the repository name wherever needed
+- Use '{repo_name}' as the repository name wherever needed and branch: {branch_name}
 - Output ONLY valid YAML, no explanations or markdown. Below is the attached ci template {ci_template}
