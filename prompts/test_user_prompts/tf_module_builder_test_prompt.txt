@@ -1,4 +1,4 @@
-Create a tf.yml pipeline YAML script (CI/CD workflow file) to save in workflowfiles folder for Below repository details of an Application 
+Generate terraform module files for Below  Infrastructure and repository details of an Application 
 Cloud Provider  = "Azure"
 Repo_name       = "Shashank-Files"
 TENANT_ID       = "5f3ec70f-0215-4f44-bdab-f5beda7cdd74"

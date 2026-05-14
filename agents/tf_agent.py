@@ -18,9 +18,9 @@ class TfAgent(BaseAgent):
       approval_mode="never_require")
 async def terraform_agent(prompt: Annotated[str, Field(description="Full prompt including original request and any previous context")]):
     logger.info("[terraform_agent] Called with prompt.")
-    print("[terraform_agent] Called with prompt.")
-    logger.debug(f"[terraform_agent] Prompt: {prompt}")
-    print(f"[terraform_agent] Prompt: {prompt}")
+    # print("[terraform_agent] Called with prompt.")
+    # logger.debug(f"[terraform_agent] Prompt: {prompt}")
+    # print(f"[terraform_agent] Prompt: {prompt}")
     try:
         result = await TfAgent.get_instance().run(prompt)
         logger.info("[terraform_agent] Successfully generated Terraform output.")

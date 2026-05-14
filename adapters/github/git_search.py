@@ -1,7 +1,7 @@
 from utils.github_client import get_github_client 
 from utils.logger import get_logger
 
-REPO_OWNER = "Hari-var"
+REPO_OWNER = "RAGHAVENDRA-VAM"
 
 logger = get_logger(__name__)
 g= get_github_client()

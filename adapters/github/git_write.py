@@ -22,16 +22,16 @@ def commit_files(
     print(f"Committing changes to {repo}/{file_path} on branch '{branch}'")
 
     # --- Input validation ---
-    if not repo or "/" not in repo:
-        return "Invalid repo format. Use 'owner/repo'."
-    if not file_path or file_path.startswith(".git/"):
-        return "Invalid file path. Must be relative to repo root and not a .git path."
-    if not commit_message.strip():
-        return "Commit message cannot be empty."
-    if not branch.strip():
-        return "Branch name cannot be empty."
-    if not content.strip():
-        return "File content cannot be empty."
+    # if not repo or "/" not in repo:
+    #     return "Invalid repo format. Use 'owner/repo'."
+    # if not file_path or file_path.startswith(".git/"):
+    #     return "Invalid file path. Must be relative to repo root and not a .git path."
+    # if not commit_message.strip():
+    #     return "Commit message cannot be empty."
+    # if not branch.strip():
+    #     return "Branch name cannot be empty."
+    # if not content.strip():
+    #     return "File content cannot be empty."
 
     try:
         # --- Validate repo exists and is accessible ---
@@ -95,6 +95,7 @@ def commit_files(
 
 async def set_github_secret(repo_full_name: str, secret_name: str, secret_value: str) -> None:
     # try:
+    print("Repo Full Name :=====================",repo_full_name)
     repo = g.get_repo(repo_full_name)
     print(repo)
     public_key = repo.get_public_key()
