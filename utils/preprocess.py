@@ -15,5 +15,5 @@ def clean_yaml_output(yaml_str):
         cleaned.pop()
     result = "\n".join(cleaned)
     logger.debug(f"[clean_yaml_output] Cleaned YAML Output:")
-    print(f"[clean_yaml_output] Cleaned YAML: {result}")
+    # print(f"[clean_yaml_output] Cleaned YAML: {result}")
     return result

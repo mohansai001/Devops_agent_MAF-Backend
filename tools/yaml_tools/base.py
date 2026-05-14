@@ -227,6 +227,7 @@ async def TF_Builder(cloud_provider: Annotated[str, Field(description="The cloud
         prompt += f"Resource Group: {resource_group}\n"
         prompt += f"Resources: {resources}\n"
         prompt += f"Repository: {repo_name}\n"
+        prompt += f"Please use the below secret key names only for handling storing secret key names {list(azure_config.keys())}\n"
         prompt += "The pipeline should be suitable for production use, following best practices for infrastructure as code and CI/CD. Output only the YAML content without any explanations or markdown formatting."
         # logger.info(f"[TF_Builder] Prompt: {prompt}")
         # print(f"[TF_Builder] Prompt: {prompt}")

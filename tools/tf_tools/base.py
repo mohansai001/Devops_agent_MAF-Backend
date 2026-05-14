@@ -63,9 +63,16 @@ async def TF_Module_builder(
         # Extract resource group information
         resource_group_dict = resources_dict.get("resource_group", {})
         
+        # Normalize resource type aliases
+        RESOURCE_ALIASES = {
+            "app_service": "webapp", "app service": "webapp", "web_app": "webapp", "web app": "webapp",
+            "virtual_machine": "vm", "virtual machine": "vm",
+        }
+
         # Get other resources (excluding resource_group)
         other_resources_dict = {
-            k: v for k, v in resources_dict.items() if k != "resource_group"
+            RESOURCE_ALIASES.get(k.lower(), k.lower()): v
+            for k, v in resources_dict.items() if k != "resource_group"
         }
 
         logger.info(f"[TF_Module_builder] Resource Group: {resource_group_dict}")
@@ -180,7 +187,7 @@ async def TF_Module_builder(
             try:
                 commit_message = f"Add Terraform modules for {', '.join(processed_resources)} on {cloud_provider}"
                 github_push_files(
-                    repo_name="Workflow-files",
+                    repo_name=f"{REPO_OWNER}/Workflow-files",
                     files_to_push=files_to_push,
                     commit_message=commit_message,
                     branch="main"
