@@ -96,7 +96,7 @@ def commit_files(
 
 
 
-async def _set_github_secret(repo_full_name: str, secret_name: str, secret_value: str) -> None:
+async def set_github_secret(repo_full_name: str, secret_name: str, secret_value: str) -> None:
     # try:
     repo = g.get_repo(repo_full_name)
     print(repo)

@@ -4,10 +4,10 @@ Requirements:
 - follow the template 
 
 Repository Details:
-Repo_Name      = "Shashank-Repo"
+Repo_Name      = "Simple_Insurance_portal"
 Branch         = "main"
 CI_Platform    = "GitHub Actions"
-Language       = "Node"
+Language       = "react"
 Framework      = "React"
 Enable_SAST    = true
 Enable_DAST    = false

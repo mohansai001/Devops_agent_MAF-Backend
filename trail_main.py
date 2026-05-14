@@ -18,7 +18,7 @@ import asyncio
 from utils.prompt_manager_v2 import TestUserPrompt
 async def main():
     coordinator = CoOrdinatorAgent.get_instance()
-    response = await coordinator.run(str(TestUserPrompt("workflow_test_prompt"))) #type: ignore
+    response = await coordinator.run(str(TestUserPrompt("workflow_test_prompt")))
     print(response)
 
 asyncio.run(main())
