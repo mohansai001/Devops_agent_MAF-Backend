@@ -18,7 +18,8 @@ from adapters.github.git_read import wait_for_latest_workflow
 from utils.prompt_manager_v2 import GeneratorPrompt, ToolDescriptionPrompt
 
 # auth = Auth.Token(github_token)
-g = get_github_client() 
+# g = get_github_client() 
+g = get_github_client(github_token)
 REPO_OWNER = "RAGHAVENDRA-VAM"
 from utils.clientConnection import get_client
 from .content_generator import create_yaml_scripts

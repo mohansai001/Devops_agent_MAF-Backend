@@ -25,7 +25,7 @@ async def fallback_pipeline(db: Session, id: int) :
     response = await CI_Builder(repo_name=repo_name, techstack=language, tool=tool_name, branch_name=branch_name)
     logger.info("[terraform_agent] Called with prompt.")
     print("[terraform_agent] Called with prompt.")
-
+    tf_repo_name =
 
 
     print(response)
@@ -35,7 +35,7 @@ if __name__ == "__main__":
     # Example usage
     from database.database import sessionlocal
     db = sessionlocal()
-    asyncio.run(fallback_pipeline(db, 2))
+    asyncio.run(fallback_pipeline(db, 8))
 
     
 
