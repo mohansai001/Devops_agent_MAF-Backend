@@ -1,22 +1,19 @@
-repo_name: "The name of the repository to which the infrastructure should be provisioned. This is mandatory and will be coming from the user input."
-cloud_provider: "The cloud provider to be used for the infrastructure (e.g., 'azure', 'aws', 'gcp')"
+repo_name: "The github repository name. MUST be taken exactly as-is from the 'Repo_name' field in the user prompt. Do NOT infer, generate, or substitute any other value."
+cloud_provider: "The cloud provider to be used for the infrastructure (e.g., 'azure', 'aws', 'gcp'). Extract from the prompt."
 Resources: |
-  ALL resources to be provisioned in a SINGLE JSON structure. Example:
+  ALL resources to be provisioned in a SINGLE JSON structure. MUST be populated from the config values in the prompt. NEVER pass an empty object {}.
+  Build the JSON using DEPLOY_TARGET as the resource key and fill values from the config.
+  Always include resource_group using RESOURCE_GROUP and LOCATION from the config.
+  Example structure:
   {
-    "vm": {
-      "name": "my-vm",
-      "size": "Standard_B1ms",
-      "ram": "2GB"
-    },
     "webapp": {
-      "name": "my-webapp",
-      "port": 80,
-      "location": "East US"
+      "name": "<APP_NAME>",
+      "location": "<LOCATION>",
+      "sku": "<APP_SERVICE_SKU>"
     },
     "resource_group": {
-      "name": "rg-main",
-      "location": "East US"
+      "name": "<RESOURCE_GROUP>",
+      "location": "<LOCATION>"
     }
   }
-  Resource names should be lowercase with underscores.
-  suppose the the deployment target is mentioned as app_service or app service, then it should be considered as webapp and for virtual_machine or virtual machine it should consider as vm
+  DEPLOY_TARGET aliases: app_service, app service, web_app, web app → use "webapp". virtual_machine, virtual machine → use "vm".
