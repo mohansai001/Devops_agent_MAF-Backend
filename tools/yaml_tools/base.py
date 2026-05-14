@@ -91,7 +91,8 @@ def github_push_files(files_to_push, repo_name, commit_message, branch="main"):
 @tool(name="CI_builder", description=str(ToolDescriptionPrompt("ci-builder-tool-description")), approval_mode="never_require")
 async def CI_Builder(tool: Annotated[str, Field(description="The CI tool to used for the application the tool name should be in lower case without spaces, the sapce should be replaces with '_' .Example : github_actions")],
                      techstack: Annotated[str, Field(description="The tech stack that is used to develop the application and in the repository, The tech stack name should be in lower case. Example : python")],
-                     repo_name: Annotated[str, Field(description="The repository name")]):
+                     repo_name: Annotated[str, Field(description="The repository name")],
+                     branch_name: Annotated[str, Field(description="The branch name")]):
     # Assuming Tech stack, tool, Repository name and Framework comes from the orchestrator agent
     try:
         logger.info("[CI_Builder] Tool called.")
@@ -117,7 +118,7 @@ async def CI_Builder(tool: Annotated[str, Field(description="The CI tool to used
         logger.info("[CI_Builder] Preparing instructions for CI pipeline generation.")
         # print("[CI_Builder] Preparing instructions for CI pipeline generation.")
         prompt = GeneratorPrompt("ci-builder-generator")
-        instructions = prompt.render(repo_name=repo_name, ci_template=ci_template)
+        instructions = prompt.render(repo_name=repo_name, branch_name=branch_name, ci_template=ci_template)
         print("Instructions for CI pipeline generation:\n", instructions)
 
         logger.info("[CI_Builder] Generating CI pipeline script using content generator...")
@@ -129,12 +130,12 @@ async def CI_Builder(tool: Annotated[str, Field(description="The CI tool to used
         # print(f"[CI_Builder] Pushing CI Pipeline script into the repository: {ci_repo_name}")
         result = github_push_files(
             {f".github/workflows/{techstack}-ci.yml": ci_script},
-            f"{REPO_OWNER}/{repo_name}",
-            "Add CI pipeline",
-            "main"
+            f"{repo_name}",
+            "Pushed by hari",
+            branch_name
         )
         logger.info(f"[CI_Builder] CI push result: {result}")
-        workflow_status=wait_for_latest_workflow(f"{REPO_OWNER}/{repo_name}", f"{techstack}-ci.yml")
+        workflow_status=wait_for_latest_workflow(repo_name=repo_name,branch=branch_name, workflow_file_name=f"{techstack}-ci.yml")
         if workflow_status==True:
             logger.info(f"[CI_Builder] Workflow status: {workflow_status}")
         else:
