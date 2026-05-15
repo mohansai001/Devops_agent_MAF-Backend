@@ -67,7 +67,7 @@ async def fallback_pipeline(db: Session, id: int) :
 
     
 
-    print(response3)
+    return response3
 
 import asyncio
 if __name__ == "__main__": 
