@@ -276,7 +276,7 @@ def get_cd_run_metadata(repo_name: str, workflow_file_name: str, branch: str = "
 
 if __name__ == "__main__":
     repo_name = "Hari-var/insure-flow-webapp"
-    file_name = "react-cd.yml"
+    file_name = "webapp-cd.yml"
     branch = "master"
     result = get_cd_run_metadata(repo_name=repo_name, workflow_file_name=file_name, branch=branch)
     print(result)

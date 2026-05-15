@@ -227,7 +227,8 @@ async def CD_Builder(target: Annotated[str, Field(description="The target enviro
         logger.info(f"[CD_Builder] Waiting for CD workflow to initialize...")
         await asyncio.sleep(80)
         workflow_status=wait_for_latest_workflow(f"{repo_name}", f"{target}-cd.yml", branch=branch)
-        details = get_deployment_url_from_logs(repo_name=repo_name, workflow_file_name=f"{target}-cd.yml")
+        details = get_deployment_url_from_logs(repo_name=repo_name, workflow_file_name=f"{target}-cd.yml", branch=branch)
+        print(details)
         if workflow_status==True:
             logger.info(f"[CD_Builder] Workflow status: {workflow_status}")
         else:
