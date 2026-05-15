@@ -4,7 +4,7 @@ gunicorn
 sqlalchemy
 pymysql
 psycopg2-binary
-agent-framework==1.2.0
+agent-framework==1.1.0
 pydantic
 azure-identity
 python-dotenv
