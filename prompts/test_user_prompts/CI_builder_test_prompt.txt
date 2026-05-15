@@ -4,7 +4,7 @@ Requirements:
 - follow the template 
 
 Repository Details:
-Repo_Name      = "Simple_Insurance_portal"
+Repo_Name      = "RAGHAVENDRA-VAM/Simple_Insurance_portal"
 Branch         = "main"
 CI_Platform    = "GitHub Actions"
 Language       = "react"

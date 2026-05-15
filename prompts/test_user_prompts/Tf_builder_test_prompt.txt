@@ -4,7 +4,7 @@ Create a tf.yml pipeline YAML script (CI/CD workflow file) to save in workflowfi
   "config": {
     "RESOURCE_GROUP": "my-resource-group",
     "LOCATION": "eastus",
-    "APP_NAME": "my-web-app",
+    "APP_NAME": "vam-shashank-my-web-app",
     "DEPLOY_TARGET": "webapp",
     "ENVIRONMENT": "staging",
     "BRANCH": "main",

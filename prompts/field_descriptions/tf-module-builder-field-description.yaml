@@ -1,7 +1,7 @@
 repo_name: "The github repository name. MUST be taken exactly as-is from the 'Repo_name' field in the user prompt. Do NOT infer, generate, or substitute any other value."
 cloud_provider: "The cloud provider to be used for the infrastructure (e.g., 'azure', 'aws', 'gcp'). Extract from the prompt."
 deployment_target_name: "Name of the deployment target (e.g., 'Azure App Service', 'AWS EC2'). Extract from the prompt."
-target_service_name: "Name of the target service where application should be deployed in the cloud provider."
+target_service_name: "Name of the target service where application should be deployed in the cloud provider. Should be in lowercase."
 target_service_location: "Location of the target service (e.g., 'eastus', 'westus'). Extract from the prompt."
 target_service_sku: "SKU of the target service (e.g., 'S1', 'P1V2'). Extract from the prompt."
 resource_group_name: "Name of the resource group where the infrastructure will be deployed."

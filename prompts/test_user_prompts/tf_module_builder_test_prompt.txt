@@ -6,7 +6,7 @@ Generate the required Terraform `.tf` files dynamically based on the `DEPLOY_TAR
   "config": {
     "RESOURCE_GROUP": "my-resource-group",
     "LOCATION": "eastus",
-    "APP_NAME": "my-web-app",
+    "APP_NAME": "vam-shashank-my-web-app",
     "DEPLOY_TARGET": "webapp",
     "ENVIRONMENT": "staging",
     "BRANCH": "main",
