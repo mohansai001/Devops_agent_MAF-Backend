@@ -137,7 +137,7 @@ async def CI_Builder(tool: Annotated[str, Field(description="The CI tool to used
             f"{repo_name}",
             "Pushed by hari",
             branch_name,
-            g = get_github_client()
+            g = get_github_client(hari_github_token)
         )
         logger.info(f"[CI_Builder] CI push result: {result}")
         logger.info(f"[CI_Builder] Waiting for CI workflow to initialize...")
@@ -160,7 +160,7 @@ async def CI_Builder(tool: Annotated[str, Field(description="The CI tool to used
         # print(f"[CI_Builder] Error occurred while creating CI pipeline: {e}")
 
 from utils.config import hari_github_token
-from adapters.github.git_read import get_deployment_url_from_logs
+from adapters.github.git_read import get_cd_run_metadata
 @tool(name="CD_builder", description=str(ToolDescriptionPrompt("cd-builder-tool-description")), approval_mode="never_require")
 async def CD_Builder(target: Annotated[str, Field(description="The target environment for the CD pipeline")],
                      techstack: Annotated[str, Field(description="The tech stack that is used to develop the application and in the repo")],
@@ -224,10 +224,15 @@ async def CD_Builder(target: Annotated[str, Field(description="The target enviro
             g=g
         )
         logger.info(f"[CD_Builder] CD push result: {result}")
+        
+        await asyncio.sleep(10)
+        logger.info(f"[CD_Builder] Waiting for CI workflow to complete...")
+        ci_workflow_status = wait_for_latest_workflow(f"{repo_name}", f"{ci_file_name}", branch=branch)
+        logger.info(f"[CD_Builder] CI Workflow status: {ci_workflow_status}")
         logger.info(f"[CD_Builder] Waiting for CD workflow to initialize...")
-        await asyncio.sleep(80)
+        await asyncio.sleep(10)
         workflow_status=wait_for_latest_workflow(f"{repo_name}", f"{target}-cd.yml", branch=branch)
-        details = get_deployment_url_from_logs(repo_name=repo_name, workflow_file_name=f"{target}-cd.yml", branch=branch)
+        details = get_cd_run_metadata(repo_name=repo_name, workflow_file_name=f"{target}-cd.yml", branch=branch)
         print(details)
         if workflow_status==True:
             logger.info(f"[CD_Builder] Workflow status: {workflow_status}")
