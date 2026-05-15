@@ -5,12 +5,12 @@ from agent_framework import tool #type: ignore
 from typing import Annotated
 from pydantic import Field
 from utils.prompt_manager_v2 import AgentDescriptionPrompt, AgentInstructionPrompt, ToolFieldsPrompt
-from .BaseAgent import BaseAgent
+from .Base_agent import Base_Agent
 from utils.logger import get_logger
 logger = get_logger(__name__)
 
 
-class YamlAgent(BaseAgent):
+class YamlAgent(Base_Agent):
     name = "yaml_agent"
     instructions = str(AgentInstructionPrompt("yaml-agent-instructions"))
     tools = [CI_Builder,CD_Builder,TF_Builder]

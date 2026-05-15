@@ -1,4 +1,4 @@
-from .BaseAgent import BaseAgent
+from .Base_agent import Base_Agent
 from agent_framework import Agent #type: ignore
 from agent_framework import tool #type: ignore
 from typing import Annotated
@@ -9,7 +9,7 @@ from utils.logger import get_logger
 
 logger = get_logger(__name__)
 
-class GithubAgent(BaseAgent):
+class GithubAgent(Base_Agent):
     name = "github_agent"
     instructions = str(AgentInstructionPrompt("github-agent-instructions"))
     tools = [get_user, commit_files]

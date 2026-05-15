@@ -7,7 +7,7 @@ import inspect
 from pprint import pformat
 # from agent_framework.middleware import SecurityAgentMiddleware #type: ignore
 
-class BaseAgent:
+class Base_Agent:
     _instance = None
     name = None
     model = baconfig.model or "gpt-4.1-nano"

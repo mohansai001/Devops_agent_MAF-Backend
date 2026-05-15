@@ -1,11 +1,11 @@
-from .BaseAgent import BaseAgent
+from .Base_agent import Base_Agent
 from .yaml_agent import yaml_agent
 from .github_agent import github_agent
 from .tf_agent import terraform_agent
 from utils.prompt_manager_v2 import AgentInstructionPrompt
 from agent_framework import InMemoryHistoryProvider #type: ignore
 
-class CoOrdinatorAgent(BaseAgent):
+class CoOrdinatorAgent(Base_Agent):
     name = "Co_ordinator"
     # debug_context = True
     instructions = str(AgentInstructionPrompt("co-ordinator-instructions"))
