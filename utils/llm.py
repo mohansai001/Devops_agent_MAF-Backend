@@ -34,8 +34,8 @@ def get_azure_response(text):
                     "content": text,
                 }
             ],
-            max_tokens=1000,
-            temperature=0.7,
+            max_tokens=5000,
+            temperature=0.9,
             model=deployment
         )
 

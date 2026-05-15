@@ -1,0 +1,68 @@
+name: React CI Pipeline
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+env:
+  NODE_VERSION: '20.x'
+  PROJECT_NAME: 'insure-flow-webapp'
+  ARTIFACT_NAME: 'insure-flow-webapp-drop'
+jobs:
+  build:
+    name: Build React Application
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+          cache: 'npm'
+      - name: Install Dependencies
+        run: npm ci
+      - name: Build Application
+        run: npm run build
+      - name: Upload Build Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-output
+          path: build/
+  sast:
+    name: Security Scan
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+      - name: Gitleaks — Secret Detection
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Semgrep — Code Analysis
+        uses: returntocorp/semgrep-action@v1
+        with:
+          config: auto
+      - name: Trivy — Dependency Scan
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: fs
+          scan-ref: .
+  publish:
+    name: Publish Artifact
+    runs-on: ubuntu-latest
+    needs: sast
+    steps:
+      - name: Download Build Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: build-output
+          path: build/
+      - name: Publish insure-flow-webapp-drop
+        uses: actions/upload-artifact@v4
+        with:
+          name: insure-flow-webapp-drop
+          path: build/

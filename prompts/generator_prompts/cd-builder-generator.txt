@@ -3,4 +3,7 @@ Your job is to take a CI/CD pipeline YAML template and generate a complete, full
 - Replace placeholders with real, working values
 - Use '{repo_name}' as the repository name wherever needed
 - Output ONLY valid YAML, no explanations or markdown. Below is the attached cd template {cd_template} 
-1`
+- the generated artifact_name is {artifact_name}, use it as required.
+- the generated workflow_name is {workflow_name}, use it as required.
+- the corresponding CI filename is {ci_filename}
+- the resource gropu name is {resource_group_name} and the name of the service in it is {deployment_target_name}
