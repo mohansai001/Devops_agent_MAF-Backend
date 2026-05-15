@@ -7,24 +7,25 @@ from github.GithubException import GithubException #type: ignore
 from utils.logger import get_logger
 from utils.github_client import get_github_client
 from utils.config import hari_github_token as GITHUB_TOKEN
+from github import Github #type: ignore
 
 logger=get_logger(__name__)
 REPO_OWNER = "RAGHAVENDRA-VAM"
 g = get_github_client()
 
 def github_read_contents(path, repo_owner=REPO_OWNER, repo_name="Terraform_modules"):
-    logger.info(f"[github_read_contents] Reading content from path: {path}")
+    logger.info(f"[github_agent] [github_read_contents] Reading content from path: {path}")
     try:
         
         print(f"Reading content from path: {path}")
         repo = g.get_repo(f"{repo_owner}/{repo_name}")
         content = repo.get_contents(path)
         decoded_content = content.decoded_content.decode()
-        logger.info(f"[github_read_contents] Successfully read content from {path}")
+        logger.info(f"[github_agent] [github_read_contents] Successfully read content from {path}")
         print(f"Successfully read content from {path}")
         return decoded_content
     except Exception as e:
-        logger.error(f"[github_read_contents] Error reading GitHub file content from {path}: {e}", exc_info=True)
+        logger.error(f"[github_agent] [github_read_contents] Error reading GitHub file content from {path}: {e}", exc_info=True)
         print(f"Error reading GitHub file content from {path}: {e}")
         return None
     
@@ -33,8 +34,10 @@ def wait_for_latest_workflow(
         workflow_file_name: str = "ci.yml",
         branch: str = "main",
         poll_interval: int = 10,
-        timeout: int = 1800,
+        timeout: int = 800,
+        g: Github = g
     ):
+        logger.info(f"[github_agent] [wait_for_latest_workflow] Monitoring workflow in repo: {repo_name}")
         print(f"Repo Name: {repo_name},\n Workflow File: {workflow_file_name},\n Branch: {branch}")
         """
         Waits for latest workflow execution to complete.
@@ -58,21 +61,22 @@ def wait_for_latest_workflow(
             print(f"URL           : {workflow.html_url}")
             
         except GithubException as e:
+            logger.warning(f"[github_agent] [wait_for_latest_workflow] Unable to find workflow '{workflow_file_name}'")
             print(f"Unable to find workflow '{workflow_file_name}'")
             print(str(e))
             return False
  
-        latest_run_id = None
  
         while True:
  
             # Timeout check
             if time.time() - start_time > timeout:
+                logger.warning(f"[github_agent] [wait_for_latest_workflow] Timeout reached while waiting for workflow: {workflow_file_name}")
                 print("Workflow monitoring timed out")
                 return False
  
             try:
-                runs = workflow.get_runs()
+                runs = workflow.get_runs(branch=branch)
 
                 # Debug print
                 print(f"Total runs: {runs.totalCount}")
@@ -80,20 +84,21 @@ def wait_for_latest_workflow(
                     print(f"  [{i}] id={run.id} status={run.status} conclusion={run.conclusion} created_at={run.created_at}")
  
                 if runs.totalCount == 0:
+                    logger.info(f"[wait_for_latest_workflow]")
                     print("Waiting for workflow run to start...")
                     time.sleep(poll_interval)
                     continue
  
                 latest_run = runs[0]
  
-                # Store first detected run id
-                if latest_run_id is None:
-                    latest_run_id = latest_run.id
-                    print(f"Detected workflow run: {latest_run_id}")
+                # # Store first detected run id
+                # if latest_run_id is None:
+                #     latest_run_id = latest_run.id
+                #     print(f"Detected workflow run: {latest_run_id}")
  
-                # Prevent older workflow confusion
-                if latest_run.id != latest_run_id:
-                    latest_run = repo.get_workflow_run(latest_run_id)
+                # # Prevent older workflow confusion
+                # if latest_run.id != latest_run_id:
+                #     latest_run = repo.get_workflow_run(latest_run_id)
  
                 print("=" * 60)
                 print(f"Workflow Name : {latest_run.name}")

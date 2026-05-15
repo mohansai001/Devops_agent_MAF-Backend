@@ -1,0 +1,48 @@
+name: Web App CD Pipeline
+
+on:
+  workflow_run:
+    workflows:
+      - React CI Pipeline
+    types:
+      - completed
+
+env:
+  AZURE_WEBAPP_NAME: "Testingwebapp"
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+
+    steps:
+      - name: Download Artifact
+        uses: dawidd6/action-download-artifact@v3
+        with:
+          workflow: react-ci.yml
+          run_id: ${{ github.event.workflow_run.id }}
+          name: insure-flow-webapp-drop
+          path: app
+      - name: Debug files
+        run: ls -R app
+        
+      - name: Verify Files
+        run: ls -R
+
+      - name: Azure Login
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+      - name: Set Startup Command
+        run: |
+          az webapp config set \
+            --name ${{ env.AZURE_WEBAPP_NAME }} \
+            --resource-group devops-maf \
+            --startup-file "npx serve -s /home/site/wwwroot"
+            
+      - name: Deploy to Azure Web App
+        uses: azure/webapps-deploy@v3
+        with:
+          app-name: ${{ env.AZURE_WEBAPP_NAME }}
+          package: app

@@ -62,6 +62,7 @@ def commit_files(
             # File exists — check if content is actually different
             existing_content = existing_file.decoded_content.decode("utf-8")
             if existing_content == content:
+                logger.info(f"[github_agent] No changes detected in '{file_path}'. Skipping commit.")
                 return f"No changes detected in '{file_path}'. Skipping commit."
 
             # Update existing file
@@ -72,6 +73,7 @@ def commit_files(
                 sha=existing_file.sha,   # required for updates
                 branch=branch,
             )
+            logger.info(f"[github_agent] File '{file_path}' updated successfully on branch '{branch}'.")
             return f"File '{file_path}' updated successfully on branch '{branch}'."
 
         except GithubException as e:
@@ -85,12 +87,14 @@ def commit_files(
                 content=content,
                 branch=branch,
             )
+            logger.info(f"[github_agent] File '{file_path}' created successfully on branch '{branch}'.")
             return f"File '{file_path}' created successfully on branch '{branch}'."
 
     except GithubException as e:
-        print(f"GitHub API error [{e.status}]: {e.data}")
+        print(f"[github_agent] GitHub API error [{e.status}]: {e.data}")
         return f"GitHub error {e.status}: {e.data.get('message', str(e))}"
     except Exception as e:
+        logger.warning(f"[github_agent] Unexpected error: {e}")
         print(f"Unexpected error: {e}")
         return f"Unexpected error while committing: {str(e)}"
 
@@ -118,7 +122,7 @@ async def set_github_secret(repo_full_name: str, secret_name: str, secret_value:
         repo.create_secret(secret_name, secret_value)
 
         logger.info(
-            "Secret '%s' created/updated on repo %s",
+            "[github_agent] Secret '%s' created/updated on repo %s",
             secret_name,
             repo_full_name
         )

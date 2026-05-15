@@ -11,7 +11,7 @@ logger = get_logger(__name__)
 
 
 def github_find_folder(cloud, resource_type, repo_owner=REPO_OWNER, repo_name="Terraform_modules", g=get_github_client(github_token)):
-    logger.info(f"[github_find_folder] Searching for modules/{cloud}/{resource_type}")
+    logger.info(f"[github_agent] [github_find_folder] Searching for modules/{cloud}/{resource_type}")
     try:
         
         repo = g.get_repo(f"{repo_owner}/{repo_name}")
@@ -22,13 +22,13 @@ def github_find_folder(cloud, resource_type, repo_owner=REPO_OWNER, repo_name="T
             if item.path.startswith(target_path):
                 if item.type == 'blob':
                     found_paths.append(item.path)
-        logger.info(f"[github_find_folder] Total module files found for {cloud}/{resource_type}: {len(found_paths)}")
+        logger.info(f"[github_agent] [github_find_folder] Total module files found for {cloud}/{resource_type}: {len(found_paths)}")
         print(f"Total module files found for {cloud}/{resource_type}: {len(found_paths)}")
         print("Found files:", found_paths)
         print("=" * 30)
         return found_paths
     except Exception as e:
-        logger.error(f"[github_find_folder] Error searching GitHub repo: {e}", exc_info=True)
+        logger.error(f"[github_agent] [github_find_folder] Error searching GitHub repo: {e}", exc_info=True)
         print(f"Error searching GitHub repo: {e}")
         return []
     
