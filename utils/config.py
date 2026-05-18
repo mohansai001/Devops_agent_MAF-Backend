@@ -40,6 +40,10 @@ azure_config = {
     "subscriptionId":Azure_config.subscription_id
 }
 
+
+REPO_OWNER = "RAGHAVENDRA-VAM"
+TERRAFORM_MODULES_REPO = "Workflow-files"
+
 if __name__ == "__main__":
     print("Azure Configuration:")
     print(azure_config.items())
