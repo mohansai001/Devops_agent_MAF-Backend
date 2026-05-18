@@ -11,6 +11,7 @@ class PromptType(Enum):
     TEST_USER_PROMPTS = "test_user_prompts"
     FIELD_DESCRIPTION = "field_descriptions"
     GENERATOR_PROMPT = "generator_prompts"
+    AGENT_WRAPPER_PROMPT = "agent_wrapper_prompts"
 
 
 
@@ -74,6 +75,19 @@ class BasePrompt:
             for _, field_name, _, _ in string.Formatter().parse(self._template)
             if field_name is not None
         )
+    
+    def list_prompts(self):
+        result = {}
+        for pt in PromptType:
+            folder = PromptManager.BASE_DIR / pt.value
+            if folder.exists():
+                result[pt.value] = [
+                    f.stem for f in folder.iterdir()
+                    if f.suffix in (".txt", ".yaml")
+                ]
+            else:
+                result[pt.value] = []
+        return result
 
     def render(self, **kwargs) -> str:
         missing = self._required_keys - kwargs.keys()          # reuses pre-computed keys

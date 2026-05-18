@@ -8,6 +8,13 @@ from utils.fallback_pipeline import fallback_pipeline
 
 router = APIRouter()
 
+@router.get("/agent/check")
+async def check_agent():
+    agent = CoOrdinatorAgent.get_instance()
+    response = await agent.run("hi") #type: ignore
+    return {"response": response}
+
+
 @router.get("/agent/{id}")
 async def get_agent(db:db_dependency,id: int):
     record_data = await get_triggered_record_by_id(db, id)
