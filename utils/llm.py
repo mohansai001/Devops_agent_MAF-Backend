@@ -7,6 +7,10 @@ import time
 from utils.config import Content_generator_model_config as cgconfig
 
 def get_azure_response(text):
+    endpoint = None
+    deployment = None
+    subscription_key = None
+    api_version = None
     try:
         endpoint = cgconfig.AI_content_endpoint
         deployment = cgconfig.AI_content_model
@@ -42,7 +46,12 @@ def get_azure_response(text):
 
         return response.choices[0].message.content
     except Exception as e:
-        return f"Azure Error: {str(e)}"
+        return {"Azure Error": {str(e)},
+                "endpoint": {endpoint},
+                "deployment": {deployment},
+                "subscription_key": {subscription_key},
+                "api_version": {api_version}
+                }
 
 if __name__ == "__main__":
     print(get_azure_response("Hello, how are you?"))
