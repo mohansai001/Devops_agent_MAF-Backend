@@ -1,5 +1,5 @@
 from agent_framework.foundry import FoundryChatClient #type: ignore
-from azure.identity import AzureCliCredential #type: ignore
+from azure.identity import AzureCliCredential, DefaultAzureCredential #type: ignore
 from azure.core.credentials import TokenRequestOptions #type:ignore
 from typing import Annotated
 from pydantic import Field
@@ -20,7 +20,7 @@ _credential = None
 def _get_credential():
     global _credential
     if _credential is None:
-        _credential = AzureCliCredential()
+        _credential = DefaultAzureCredential()
         # warm up — force token fetch immediately
         _credential.get_token("https://cognitiveservices.azure.com/.default")
     return _credential
@@ -28,7 +28,7 @@ def _get_credential():
 def get_client(model:Annotated[str, Field(default="gpt-4.1-nano", description="AI foundry model used.")],endpoint:Annotated[str, Field(default="https://devops-maf1.cognitiveservices.azure.com/api/projects/proj-default", description="AI foundry endpoint URL.")]):
     global _client
     if _client is None:
-        credential = AzureCliCredential()
+        # credential = AzureCliCredential()
         _client = FoundryChatClient(
             project_endpoint=endpoint,
             model=model,
