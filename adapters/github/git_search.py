@@ -3,9 +3,7 @@ import sys
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../")))
 from utils.github_client import get_github_client 
 from utils.logger import get_logger
-from utils.config import github_token
-
-REPO_OWNER = "RAGHAVENDRA-VAM"
+from utils.config import github_token,REPO_OWNER
 
 logger = get_logger(__name__)
 

@@ -11,7 +11,7 @@ import base64
 from openai import OpenAI, AzureOpenAI  #type: ignore
 import asyncio
 import os
-from utils.config import AZURE_AI_API_KEY,github_token,azure_config
+from utils.config import AZURE_AI_API_KEY,github_token,azure_config,REPO_OWNER,TERRAFORM_MODULES_REPO
 from utils.github_client import get_github_client
 from adapters.github.git_write import set_github_secret
 from adapters.github.git_read import wait_for_latest_workflow,github_read_contents
@@ -21,7 +21,7 @@ from adapters.github.git_read import get_artifact_name_from_run
 # auth = Auth.Token(github_token)
 # g = get_github_client() 
 rg = get_github_client(github_token)
-REPO_OWNER = "RAGHAVENDRA-VAM"
+
 from utils.clientConnection import get_client
 from .content_generator import create_yaml_scripts
 from utils.logger import get_logger
@@ -30,7 +30,7 @@ logger = get_logger(__name__)
 # client = get_client(model=Content_generator_model_config.model, endpoint=Content_generator_model_config.AI_content_endpoint,api_version = "2024-05-01-preview")
 
 def github_read_yaml_library(FILE_PATH="file-paths-registry.yml"):
-    REPO_OWNER = "RAGHAVENDRA-VAM"
+    
     REPO_NAME = "Yaml-Templates"
     repo = rg.get_repo(f"{REPO_OWNER}/{REPO_NAME}")
     file = repo.get_contents(f"{FILE_PATH}")
@@ -208,7 +208,7 @@ async def CD_Builder(target: Annotated[str, Field(description="The target enviro
         # print("[CD_Builder] Generating CD pipeline script using content generator...")
         cd_script = create_yaml_scripts(instructions)
         # Make the repo dynamic while deploying...
-        cd_repo_name = "Workflow-files"
+        # cd_repo_name = "Workflow-files"
         logger.info(f"[CD_Builder] Setting up secrets for CD pipeline in the repository: {repo_name}")
         # for key, value in azure_config.items():
         #     await set_github_secret(f"{REPO_OWNER}/{repo_name}", key, value) #type: ignore
@@ -277,8 +277,8 @@ async def TF_Builder(cloud_provider: Annotated[str, Field(description="The cloud
         logger.info("[TF_Builder] Generating Terraform pipeline script using content generator...")
         # print("[TF_Builder] Generating Terraform pipeline script using content generator...")
         tf_script = create_yaml_scripts(prompt)
-        
-        tf_repo_name = f"{REPO_OWNER}/Workflow-files"
+
+        tf_repo_name = f"{REPO_OWNER}/{TERRAFORM_MODULES_REPO}"
         logger.info(f"[TF_Builder] Setting up secrets for TF pipeline in {tf_repo_name}")
         # for key, value in azure_config.items():
         #    await set_github_secret(f"{tf_repo_name}", key, value)

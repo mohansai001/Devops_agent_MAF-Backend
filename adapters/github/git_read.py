@@ -6,11 +6,10 @@ from github.GithubException import GithubException #type: ignore
 
 from utils.logger import get_logger
 from utils.github_client import get_github_client
-from utils.config import hari_github_token as GITHUB_TOKEN
+from utils.config import hari_github_token as GITHUB_TOKEN,REPO_OWNER
 from github import Github #type: ignore
 
 logger=get_logger(__name__)
-REPO_OWNER = "RAGHAVENDRA-VAM"
 g = get_github_client()
 
 def github_read_contents(path, repo_owner=REPO_OWNER, repo_name="Terraform_modules"):

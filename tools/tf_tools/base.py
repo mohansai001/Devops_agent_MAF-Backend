@@ -7,10 +7,11 @@ from ..yaml_tools.base import github_push_files
 from utils.logger import get_logger
 from adapters.github.git_search import github_find_folder
 from utils.prompt_manager_v2 import GeneratorPrompt
+from utils.config import REPO_OWNER,TERRAFORM_MODULES_REPO
 
 logger = get_logger(__name__)
 
-REPO_OWNER = "RAGHAVENDRA-VAM"
+
 
 from ..yaml_tools.content_generator import create_yaml_scripts
 
@@ -137,7 +138,7 @@ async def TF_Module_builder(
                     # print(f"Processing file: {file_name}")
 
                     # Process different file types
-                    if file_name == "variables.tf":
+                    if file_name == "terraform.tfvars":
                         logger.info(f"[TF_Module_builder] Calling Azure AI for {file_name}")
                         # print(f"Calling Azure AI for {file_name}")
                         
@@ -167,7 +168,7 @@ async def TF_Module_builder(
                             # print(f"Error calling Azure AI for {file_name}: {azure_error}")
                             continue
                             
-                    elif file_name in ["main.tf", "outputs.tf","providers.tf"]:
+                    elif file_name in ["main.tf", "outputs.tf","provider.tf","variables.tf"]:
                         logger.info(f"[TF_Module_builder] Directly pushing {file_name} without AI processing")
                         # print(f"Directly pushing {file_name} without AI processing")
                         
@@ -208,7 +209,7 @@ async def TF_Module_builder(
             try:
                 commit_message = f"Add Terraform modules for {', '.join(processed_resources)} on {cloud_provider}"
                 github_push_files(
-                    repo_name=f"{REPO_OWNER}/Workflow-files",
+                    repo_name=f"{REPO_OWNER}/{TERRAFORM_MODULES_REPO}",
                     files_to_push=files_to_push,
                     commit_message=commit_message,
                     branch="main"
