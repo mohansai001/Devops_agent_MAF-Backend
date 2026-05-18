@@ -1,4 +1,4 @@
-name: Python CI Pipeline
+name: Python CI-CD Pipeline
 
 on:
  # push:
@@ -8,7 +8,7 @@ on:
 
 env:
   PYTHON_VERSION: "3.13.1"
-  AZURE_WEBAPP_NAME: "devopsagent2-backend"
+  AZURE_WEBAPP_NAME: "devopsagent-backend"
 
 jobs:
   build:
