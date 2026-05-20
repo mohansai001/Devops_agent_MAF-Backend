@@ -6,4 +6,15 @@ target_service_location: "Location of the target service (e.g., 'eastus', 'westu
 target_service_sku: "SKU of the target service (e.g., 'S1', 'P1V2'). Extract from the prompt."
 resource_group_name: "Name of the resource group where the infrastructure will be deployed."
 resource_group_location: "Location of the resource group (e.g., 'eastus', 'westus'). Extract from the prompt."
+techstack: |
+  the teckstack of the project in the following format
+  "techstack": {
+    "language": "react",
+    "framework": "react",
+    "buildtool": "npm",
+    "hasDockerfile": false,
+    "hasHelm": false,
+    "hasTerraform": false
+  }
+
 

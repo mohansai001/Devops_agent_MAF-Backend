@@ -14,6 +14,7 @@ def github_find_folder(cloud, resource_type, repo_owner=REPO_OWNER, repo_name="T
         
         repo = g.get_repo(f"{repo_owner}/{repo_name}")
         tree = repo.get_git_tree("HEAD", recursive=True).tree
+        # print(tree)
         target_path = f"modules/{cloud}/{resource_type}"
         found_paths = []
         for item in tree:

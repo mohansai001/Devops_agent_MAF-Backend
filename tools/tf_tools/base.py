@@ -15,7 +15,7 @@ logger = get_logger(__name__)
 
 from ..yaml_tools.content_generator import create_yaml_scripts
 
-def get_azure_response(content, file_name, cloud_provider, resource_group_dict, resource):
+def get_azure_response(content, file_name, cloud_provider, resource_group_dict, resource, techstack):
     logger.info("[get_azure_response] Inside azure call.....")
     print("Inside azure call.....")
     
@@ -23,7 +23,8 @@ def get_azure_response(content, file_name, cloud_provider, resource_group_dict, 
     resource_str = json.dumps(resource, indent=2) if isinstance(resource, dict) else str(resource)
     resource_group_str = json.dumps(resource_group_dict, indent=2) if isinstance(resource_group_dict, dict) else str(resource_group_dict)
     text = GeneratorPrompt("terraform-generator")
-    text = text.render(content = content, resource_str = resource_str, resource_group_str = resource_group_str, cloud_provider = cloud_provider, file_name = file_name)  
+    text = text.render(content = content, resource_str = resource_str, resource_group_str = resource_group_str, cloud_provider = cloud_provider, file_name = file_name, techstack = techstack)  
+    print("="*30 + f"\n prompt to tf_module_builder : {text}\n" + "="*30)
     try:
         response = create_yaml_scripts(text)
         logger.info("[get_azure_response] Azure AI response received.")
@@ -48,6 +49,7 @@ async def TF_Module_builder(
     target_service_sku: Annotated[str, Field(description=_tf_module_builder_feilds.get("target_service_sku"))],
     resource_group_name: Annotated[str, Field(description=_tf_module_builder_feilds.get("resource_group_name"))],
     resource_group_location: Annotated[str, Field(description=_tf_module_builder_feilds.get("resource_group_location"))],
+    techstack: Annotated[dict,Field(description=_tf_module_builder_feilds.get("techstack"))],
     repo_name: str = "Shashank-workflow"
 ):
 
@@ -62,12 +64,12 @@ async def TF_Module_builder(
             "location": resource_group_location
         }
     }
-    logger.info("[TF_Module_builder] Building Terraform configuration...")
+    logger.info("[terraform_agent][TF_Module_builder] Building Terraform configuration...")
     # print("Building Terraform configuration...")
-    logger.info(f"[TF_Module_builder] Repository Name: {repo_name}")
-    logger.info(f"[TF_Module_builder] Cloud Provider: {cloud_provider}")
+    logger.info(f"[terraform_agent][TF_Module_builder] Repository Name: {repo_name}")
+    logger.info(f"[terraform_agent][TF_Module_builder] Cloud Provider: {cloud_provider}")
     # print("Cloud Provider:", cloud_provider)
-    logger.info(f"[TF_Module_builder] Resources: {Resources}")
+    logger.info(f"[terraform_agent][TF_Module_builder] Resources: {Resources}")
     # print("Resources:", Resources)
     # exit(0)
 
@@ -78,7 +80,7 @@ async def TF_Module_builder(
         else:
             resources_dict = Resources
 
-        logger.info(f"[TF_Module_builder] Parsed Resources Dictionary: {resources_dict}")
+        logger.info(f"[terraform_agent][TF_Module_builder] Parsed Resources Dictionary: {resources_dict}")
         # print("Parsed Resources Dictionary:", resources_dict)
 
         # Extract resource group information
@@ -96,9 +98,9 @@ async def TF_Module_builder(
             for k, v in resources_dict.items() if k != "resource_group"
         }
 
-        logger.info(f"[TF_Module_builder] Resource Group: {resource_group_dict}")
+        logger.info(f"[terraform_agent][TF_Module_builder] Resource Group: {resource_group_dict}")
         # print("Resource Group:", resource_group_dict)
-        logger.info(f"[TF_Module_builder] Other Resources: {other_resources_dict}")
+        logger.info(f"[terraform_agent][TF_Module_builder] Other Resources: {other_resources_dict}")
         # print("Other Resources:", other_resources_dict)
 
         # Dictionary to store all files to be pushed
@@ -107,14 +109,14 @@ async def TF_Module_builder(
 
         # Process each resource type
         for resource_type, resource_config in other_resources_dict.items():
-            logger.info(f"[TF_Module_builder] === Processing {resource_type} ===")
+            logger.info(f"[terraform_agent][TF_Module_builder] === Processing {resource_type} ===")
             # print(f"\n=== Processing {resource_type} ===")
             
             # Get all file paths for this resource type
             paths = github_find_folder(cloud_provider, resource_type)
             
             if not paths:
-                logger.warning(f"[TF_Module_builder] No modules found for {resource_type}")
+                logger.warning(f"[terraform_agent][TF_Module_builder] No modules found for {resource_type}")
                 # print(f"No modules found for {resource_type}")
                 continue
 
@@ -148,7 +150,8 @@ async def TF_Module_builder(
                                 file_name=file_name,
                                 cloud_provider=cloud_provider,
                                 resource_group_dict=resource_group_dict,
-                                resource=resource_config
+                                resource=resource_config,
+                                techstack=techstack
                             )
                             logger.info(f"[TF_Module_builder] Azure AI response for {file_name} received : {updated_content}")
                             

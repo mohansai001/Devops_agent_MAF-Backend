@@ -10,6 +10,10 @@ class Agents(Base):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     agent_name: Mapped[str] = mapped_column(String(100), nullable=False)
+    wrapper_prompt_path : Mapped[str] = mapped_column (Text, nullable=False)
+    required_fields : Mapped[dict] = mapped_column(JSON, nullable = True)
+
+    
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
     created_by: Mapped[str] = mapped_column(String(100), nullable=False)
     updated_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True), nullable=True)

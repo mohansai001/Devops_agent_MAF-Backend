@@ -17,6 +17,7 @@ from adapters.github.git_write import set_github_secret
 from adapters.github.git_read import wait_for_latest_workflow,github_read_contents
 from utils.prompt_manager_v2 import GeneratorPrompt, ToolDescriptionPrompt
 import json
+from github import Github #type: ignore
 from adapters.github.git_read import get_artifact_name_from_run
 # auth = Auth.Token(github_token)
 # g = get_github_client() 
@@ -29,7 +30,7 @@ logger = get_logger(__name__)
 
 # client = get_client(model=Content_generator_model_config.model, endpoint=Content_generator_model_config.AI_content_endpoint,api_version = "2024-05-01-preview")
 
-def github_read_yaml_library(FILE_PATH="file-paths-registry.yml"):
+def github_read_yaml_library(FILE_PATH="file-paths-registry.yml", g: Github = rg):
     
     REPO_NAME = "Yaml-Templates"
     repo = rg.get_repo(f"{REPO_OWNER}/{REPO_NAME}")
@@ -271,6 +272,7 @@ async def TF_Builder(cloud_provider: Annotated[str, Field(description="The cloud
         prompt += f"for the terraform init, validate, plan and Apply steps, use working directory as './{repo_name}/{deploy_target_name}' Example: for Working directory is ./repo_name/webapp"
         prompt += f"Please use the below secret key names only for handling storing secret key names , AZURE_CREDENTIALS\n"
         prompt += f"The pipeline Output should contain only the YAML content without any explanations or markdown formatting.Use below template as reference.\n {tf_yml_template}"
+        prompt += "Do not add env variables directly refer them \n Also the tech stack contains application_stack in the forfat of 'language: python 3.11(ir; language version), mould it to the acceptable syntax"
         # logger.info(f"[TF_Builder] Prompt: {prompt}")
         # print(f"[TF_Builder] Prompt: {prompt}")
 
@@ -294,6 +296,7 @@ async def TF_Builder(cloud_provider: Annotated[str, Field(description="The cloud
         logger.info(f"[TF_Builder] TF push result: {result}")
         # print(f"[TF_Builder] TF push result: {result}")
         logger.info(f"[TF_Builder] Waiting for terraform workflow to complete...")
+        await asyncio.sleep(10)
         workflow_status=wait_for_latest_workflow(f"{tf_repo_name}", f"{repo_name}-tf.yml")
         if workflow_status==True:
             logger.info(f"[TF_Builder] Workflow status: {workflow_status}")
