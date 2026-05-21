@@ -16,6 +16,8 @@ class WorkflowDetailsTableResponse(BaseModel):
     data: Optional[dict] = None
     file_name: str
     agents: list[str]
+    task_sequence: list[str]
+    run_logs: dict
     created_at: datetime
     created_by: str
     updated_at: Optional[datetime] = None

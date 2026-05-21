@@ -217,6 +217,7 @@ def get_deployment_url_from_logs(repo_name: str, workflow_file_name: str, branch
         print(f"Error retrieving deployment URL: {e}")
         return None
 import requests  
+
 def get_cd_run_metadata(repo_name: str, workflow_file_name: str, branch: str = "main") -> dict | None:
     repo = g.get_repo(repo_name)
 

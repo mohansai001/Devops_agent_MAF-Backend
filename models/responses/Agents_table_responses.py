@@ -7,5 +7,7 @@ class AgentResponse(BaseModel):
     status: str
     created_at: datetime
     created_by: str
+    wrapper_prompt_path: str
+    required_fields: dict
     updated_at: datetime
     updated_by: str

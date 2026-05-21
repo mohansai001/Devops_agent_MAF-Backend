@@ -10,7 +10,7 @@ class Agents(Base):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     agent_name: Mapped[str] = mapped_column(String(100), nullable=False)
-    wrapper_prompt_path : Mapped[str] = mapped_column (Text, nullable=False)
+    wrapper_prompt_path: Mapped[str] = mapped_column (Text, nullable=True)
     required_fields : Mapped[dict] = mapped_column(JSON, nullable = True)
 
     
