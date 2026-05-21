@@ -1,3 +1,3 @@
 Get the authenticated user information. 
-ONLY use for debugging or authentication checks. 
+ONLY use for debugging or authentication checks and to get base repo details, user missed to pass. 
 DO NOT use for file or repo modifications.

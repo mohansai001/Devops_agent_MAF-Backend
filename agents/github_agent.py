@@ -9,7 +9,13 @@ from utils.logger import get_logger
 
 logger = get_logger(__name__)
 
-class GithubAgent(Base_Agent):
+from dataclasses import dataclass
+
+@dataclass
+class GithubContext:
+    github_pat: str
+
+class GithubAgent(Base_Agent):   
     name = "github_agent"
     instructions = str(AgentInstructionPrompt("github-agent-instructions"))
     tools = [get_user, commit_files]
@@ -23,7 +29,7 @@ async def github_agent(prompt: Annotated[str, Field(description = _git_agent_fie
     logger.debug(f"[github_agent] Prompt: {prompt}")
     print(f"[github_agent] Prompt: {prompt}")
     try:
-        result = await GithubAgent.get_instance().run(prompt)
+        result = await GithubAgent.get_instance().run(prompt) #type: ignore
         logger.info("[github_agent] Successfully generated GitHub agent output.")
         print("[github_agent] Successfully generated GitHub agent output.")
         logger.debug(f"[github_agent] Output: {result}")
@@ -36,6 +42,6 @@ async def github_agent(prompt: Annotated[str, Field(description = _git_agent_fie
 
 if __name__ == "__main__":
     import asyncio
-    print(asyncio.run(GithubAgent.get_instance().describe_tools()))
+    print(asyncio.run(GithubAgent.get_instance().describe_tools())) #type: ignore
 
 

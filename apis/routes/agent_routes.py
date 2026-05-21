@@ -5,6 +5,9 @@ from database.database import db_dependency
 from utils.prompt_manager_v2 import TestUserPrompt
 from fastapi.responses import StreamingResponse # type: ignore
 from utils.fallback_pipeline import fallback_pipeline
+from models.requests.Agents_requests import github_agent_request
+from agents.github_agent import github_agent
+from utils.request_context import github_pat_ctx
 
 router = APIRouter()
 
@@ -36,3 +39,21 @@ async def get_agent(db:db_dependency,id: int):
     #     agent.run_stream(prompt),   # async generator
     #     media_type="text/event-stream"
     # )
+
+@router.post("/github_agent")
+async def github_agent_call(request: github_agent_request):
+    git_token = request.github_token
+    prompt = request.prompt
+
+    token_ref = github_pat_ctx.set(git_token)
+
+    try:
+        response = await github_agent(prompt)
+
+        return {
+            "response": f"Github agent executed successfully",
+            "agent_output": response
+        }
+
+    finally:
+        github_pat_ctx.reset(token_ref)

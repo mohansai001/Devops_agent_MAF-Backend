@@ -8,7 +8,7 @@ from utils.config import github_token,REPO_OWNER
 logger = get_logger(__name__)
 
 
-def github_find_folder(cloud, resource_type, repo_owner=REPO_OWNER, repo_name="Terraform_modules", g=get_github_client(github_token)):
+def github_find_folder(cloud, resource_type, repo_owner=REPO_OWNER, repo_name="Terraform_modules", g=get_github_client()):
     logger.info(f"[github_agent] [github_find_folder] Searching for modules/{cloud}/{resource_type}")
     try:
         

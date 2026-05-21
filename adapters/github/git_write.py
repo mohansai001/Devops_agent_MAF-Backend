@@ -3,7 +3,7 @@ import sys
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../")))
 from utils.logger import get_logger
 from utils.github_client import get_github_client
-from github import GithubException # type: ignore
+from github import GithubException, Github # type: ignore
 from nacl import public as nacl_public, encoding #type: ignore
 import base64
 from utils.logger import get_logger
@@ -17,11 +17,12 @@ def commit_files(
     commit_message: str,
     branch: str,
     content: str,
-    g =  get_github_client()
+    g :Github = None
 ):
-    print(f"[github_agent] Committing changes to {repo}/{file_path} on branch '{branch}'")
+    
+    g = g if g else get_github_client()
+    print(f"[github_agent] Committing changes to {repo}/{file_path} on branch '{branch}' with the token : {g}")
     logger.info(f"[github_agent] Committing changes to {repo}/{file_path} on branch '{branch}'")
-
     # --- Input validation ---
     if not repo or "/" not in repo:
         return "Invalid repo format. Use 'owner/repo'."
