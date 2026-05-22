@@ -1,5 +1,5 @@
 fastapi
-uvicorn[standard]
+uvicorn
 gunicorn
 sqlalchemy
 pymysql
