@@ -1,15 +1,12 @@
 fastapi
 uvicorn[standard]
 gunicorn
-
 sqlalchemy
 pymysql
 psycopg2-binary
-
+agent-framework==1.1.0
 pydantic
 azure-identity
 python-dotenv
 httpx
 PyGithub
-
-agent-framework==1.1.0
