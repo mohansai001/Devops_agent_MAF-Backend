@@ -1,0 +1,4 @@
+repo_full_name: "Full repository name in 'owner/repo' format. Example: 'Hari-var/insure-flow-webapp'."
+file_path: "Path of the file to delete relative to repo root. Example: 'terraform/old_main.tf'."
+commit_message: "Commit message for the deletion. Example: 'Remove deprecated terraform file'."
+branch: "Branch to delete the file from. Example: 'main'."

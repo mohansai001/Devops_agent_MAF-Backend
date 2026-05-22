@@ -1,0 +1,2 @@
+List all GitHub Actions workflows defined in a repository.
+Use this to discover available workflow file names before triggering or monitoring a specific pipeline.

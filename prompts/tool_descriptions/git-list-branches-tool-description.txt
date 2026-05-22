@@ -1,0 +1,2 @@
+List all branches in a GitHub repository.
+Use this to discover available branches before committing, creating PRs, or checking out a branch.

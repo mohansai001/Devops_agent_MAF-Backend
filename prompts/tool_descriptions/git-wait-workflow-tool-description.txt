@@ -1,0 +1,2 @@
+Wait for the latest GitHub Actions workflow run to complete and return success or failure.
+Use this after committing files to monitor CI/CD pipeline execution before proceeding.

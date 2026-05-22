@@ -1,0 +1,3 @@
+path: "File path within the repository to read. Example: 'modules/azure/webapp/main.tf'."
+repo_owner: "GitHub username or organization that owns the repository. Example: 'Hari-var'."
+repo_name: "Repository name (without owner). Example: 'Terraform_modules'."

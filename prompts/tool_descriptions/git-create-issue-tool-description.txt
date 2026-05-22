@@ -1,0 +1,2 @@
+Create a new issue in a GitHub repository.
+Use this to report pipeline failures, infrastructure problems, or track deployment tasks.

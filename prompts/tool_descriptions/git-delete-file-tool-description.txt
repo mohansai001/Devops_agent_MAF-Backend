@@ -1,0 +1,2 @@
+Delete a file from a GitHub repository on a specified branch.
+Use this to remove outdated configuration files, deprecated workflows, or stale Terraform files.

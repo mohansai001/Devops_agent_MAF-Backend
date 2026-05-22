@@ -1,0 +1,4 @@
+cloud: "Cloud provider name. Example: 'azure' or 'aws'."
+resource_type: "Type of resource/module to search for. Example: 'webapp' or 'storage'."
+repo_owner: "GitHub username or organization that owns the repository. Example: 'Hari-var'."
+repo_name: "Repository name (without owner). Example: 'Terraform_modules'."

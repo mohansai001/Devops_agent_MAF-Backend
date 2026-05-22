@@ -1,0 +1,2 @@
+Read the raw content of a file from a GitHub repository.
+Use this when you need to inspect existing file contents before making changes or to retrieve Terraform module files.

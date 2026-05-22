@@ -1,0 +1,2 @@
+Create a pull request in a GitHub repository from a head branch into a base branch.
+Use this after committing changes to a feature branch to propose merging them into the main branch.

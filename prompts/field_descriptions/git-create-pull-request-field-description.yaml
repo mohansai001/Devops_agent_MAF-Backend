@@ -1,0 +1,5 @@
+repo_full_name: "Full repository name in 'owner/repo' format. Example: 'Hari-var/insure-flow-webapp'."
+title: "Title of the pull request. Example: 'Add CI pipeline'."
+body: "Description body of the pull request. Example: 'This PR adds a GitHub Actions CI workflow.'."
+base: "Target branch to merge into. Example: 'main'."
+head: "Source branch with the changes. Example: 'feature/add-ci'."

@@ -1,0 +1,2 @@
+Create a GitHub release with a tag, name, and release notes.
+Use this after a successful CD pipeline run to publish a versioned release of the application.

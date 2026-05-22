@@ -1,0 +1,3 @@
+repo_name: "Full repository name in 'owner/repo' format. Example: 'Hari-var/insure-flow-webapp'."
+workflow_file_name: "Workflow YAML filename. Example: 'ci.yml' or 'webapp-cd.yml'."
+branch: "Branch to monitor workflow runs on. Example: 'main' or 'master'."

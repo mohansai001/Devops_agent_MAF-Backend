@@ -1,0 +1,3 @@
+repo_full_name: "Full repository name in 'owner/repo' format. Example: 'Hari-var/insure-flow-webapp'."
+title: "Title of the issue. Example: 'CI pipeline failing on push'."
+body: "Detailed description of the issue. Example: 'The workflow fails at the build step with exit code 1.'."

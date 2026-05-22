@@ -1,0 +1,2 @@
+Create a new branch in a GitHub repository from an existing source branch.
+Use this before committing files when a new feature or deployment branch is needed.

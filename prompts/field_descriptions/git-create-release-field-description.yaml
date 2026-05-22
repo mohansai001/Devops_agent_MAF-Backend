@@ -1,0 +1,6 @@
+repo_full_name: "Full repository name in 'owner/repo' format. Example: 'Hari-var/insure-flow-webapp'."
+tag: "Git tag for the release. Example: 'v1.0.0'."
+name: "Display name of the release. Example: 'Release v1.0.0'."
+message: "Release notes or description. Example: 'Initial production release with CI/CD pipeline.'."
+draft: "Whether to create as a draft release. Use true or false. Default is false."
+prerelease: "Whether this is a pre-release. Use true or false. Default is false."

@@ -1,0 +1,3 @@
+repo_full_name: "Full repository name in 'owner/repo' format. Example: 'Hari-var/insure-flow-webapp'."
+branch_name: "Name of the new branch to create. Example: 'feature/add-ci'."
+source_branch: "Branch to branch off from. Example: 'main' or 'master'."
