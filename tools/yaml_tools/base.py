@@ -128,37 +128,47 @@ async def CI_Builder(tool: Annotated[str, Field(description="The CI tool to used
 
         logger.info("[CI_Builder] Generating CI pipeline script using content generator...")
         # print("[CI_Builder] Generating CI pipeline script using content generator...")
-        ci_script = create_yaml_scripts(instructions)
+        status,ci_script,message = create_yaml_scripts(instructions)
 
         # ci_repo_name = "Workflow-files"  # Make ci_repo_name dynamic while deploying.....
-        logger.info(f"[CI_Builder] Pushing CI Pipeline script into the repository: {repo_name}")
+        
         # print(f"[CI_Builder] Pushing CI Pipeline script into the repository: {ci_repo_name}")
-        result = github_push_files(
-            {f".github/workflows/{techstack}-ci.yml": ci_script},
-            f"{repo_name}",
-            "Pushed by hari",
-            branch_name,
-            g = get_github_client(hari_github_token)
-        )
-        logger.info(f"[CI_Builder] CI push result: {result}")
-        logger.info(f"[CI_Builder] Waiting for CI workflow to initialize...")
-        await asyncio.sleep(10)
-        workflow_status=wait_for_latest_workflow(repo_name=repo_name,branch=branch_name, workflow_file_name=f"{techstack}-ci.yml")
-        if workflow_status==True:
-            art_name, workflow_name = get_artifact_name_from_run(repo_name=repo_name, workflow_file_name=f"{techstack}-ci.yml", branch=branch_name)
-            logger.info(f"[CI_Builder] Workflow status: {workflow_status}")
+        if status:
+            logger.info(f"[CI_Builder] Pushing CI Pipeline script into the repository: {repo_name}")
+            result = github_push_files(
+                {f".github/workflows/{techstack}-ci.yml": ci_script},
+                f"{repo_name}",
+                "Pushed by hari",
+                branch_name,
+                g = get_github_client(hari_github_token)
+            )
+            logger.info(f"[CI_Builder] CI push result: {result}")
+            logger.info(f"[CI_Builder] Waiting for CI workflow to initialize...")
+            await asyncio.sleep(10)
+            workflow_status=wait_for_latest_workflow(repo_name=repo_name,branch=branch_name, workflow_file_name=f"{techstack}-ci.yml")
+            if workflow_status==True:
+                art_name, workflow_name = get_artifact_name_from_run(repo_name=repo_name, workflow_file_name=f"{techstack}-ci.yml", branch=branch_name)
+                logger.info(f"[CI_Builder] Workflow status: {workflow_status}")
+            else:
+                logger.error(f"[CI_Builder] Workflow failed or timed out")
+                return f"Workflow failed or timed out"
+            # print(f"[CD_Builder] CD push result: {result}")
+            return {"TASK COMPLETED" : ci_script,
+                    "Artifact_name" : art_name,
+                    "Workflow_name": workflow_name,
+                    "ci_filename": f"{techstack}-ci.yml"}
+            # print(f"[CI_Builder] CI push result: {result}")
         else:
-            logger.error(f"[CI_Builder] Workflow failed or timed out")
-            return f"Workflow failed or timed out"
-        # print(f"[CD_Builder] CD push result: {result}")
-        return {"TASK COMPLETED" : ci_script,
-                "Artifact_name" : art_name,
-                "Workflow_name": workflow_name,
-                "ci_filename": f"{techstack}-ci.yml"}
-        # print(f"[CI_Builder] CI push result: {result}")
+            logger.info(f"[CI_Builder] CI script generation failed.{message}")
+            return{
+                "Error": message
+            }
     except Exception as e:
-        logger.error(f"[CI_Builder] Error occurred while creating CI pipeline: {e}", exc_info=True)
-        # print(f"[CI_Builder] Error occurred while creating CI pipeline: {e}")
+            logger.error(f"[CI_Builder] Error occurred while creating CI pipeline: {e}", exc_info=True)
+            # print(f"[CI_Builder] Error occurred while creating CI pipeline: {e}")
+            return {
+                "Error": str(e)
+            }
 
 from utils.config import hari_github_token
 from adapters.github.git_read import get_cd_run_metadata
@@ -207,46 +217,57 @@ async def CD_Builder(target: Annotated[str, Field(description="The target enviro
 
         logger.info("[CD_Builder] Generating CD pipeline script using content generator...")
         # print("[CD_Builder] Generating CD pipeline script using content generator...")
-        cd_script = create_yaml_scripts(instructions)
+        status,cd_script,message = create_yaml_scripts(instructions)
         # Make the repo dynamic while deploying...
         # cd_repo_name = "Workflow-files"
-        logger.info(f"[CD_Builder] Setting up secrets for CD pipeline in the repository: {repo_name}")
-        # for key, value in azure_config.items():
-        #     await set_github_secret(f"{REPO_OWNER}/{repo_name}", key, value) #type: ignore
-        await set_github_secret(f"{repo_name}", "AZURE_CREDENTIALS", json.dumps(azure_config), g=g)
-        
-        logger.info(f"[CD_Builder] Pushing CD Pipeline script into the repository: {repo_name}")
-        # print(f"[CD_Builder] Pushing CD Pipeline script into the repository: {repo_name}")
-        result = github_push_files(
-            {f".github/workflows/{target}-cd.yml": cd_script},
-            f"{repo_name}",
-            "Add CD pipeline",
-            branch=branch,
-            g=g
-        )
-        logger.info(f"[CD_Builder] CD push result: {result}")
-        
-        await asyncio.sleep(10)
-        logger.info(f"[CD_Builder] Waiting for CI workflow to complete...")
-        ci_workflow_status = wait_for_latest_workflow(f"{repo_name}", f"{ci_file_name}", branch=branch)
-        logger.info(f"[CD_Builder] CI Workflow status: {ci_workflow_status}")
-        logger.info(f"[CD_Builder] Waiting for CD workflow to initialize...")
-        await asyncio.sleep(10)
-        workflow_status=wait_for_latest_workflow(f"{repo_name}", f"{target}-cd.yml", branch=branch)
-        details = get_cd_run_metadata(repo_name=repo_name, workflow_file_name=f"{target}-cd.yml", branch=branch)
-        print(details)
-        if workflow_status==True:
-            logger.info(f"[CD_Builder] Workflow status: {workflow_status}")
+        if status:
+            logger.info(f"[CD_Builder] CD script generation succeeded.")
+            logger.info(f"[CD_Builder] Setting up secrets for CD pipeline in the repository: {repo_name}")
+            # for key, value in azure_config.items():
+            #     await set_github_secret(f"{REPO_OWNER}/{repo_name}", key, value) #type: ignore
+            await set_github_secret(f"{repo_name}", "AZURE_CREDENTIALS", json.dumps(azure_config), g=g)
+
+            
+            logger.info(f"[CD_Builder] Pushing CD Pipeline script into the repository: {repo_name}")
+            # print(f"[CD_Builder] Pushing CD Pipeline script into the repository: {repo_name}")
+            result = github_push_files(
+                {f".github/workflows/{target}-cd.yml": cd_script},
+                f"{repo_name}",
+                "Add CD pipeline",
+                branch=branch,
+                g=g
+            )
+            logger.info(f"[CD_Builder] CD push result: {result}")
+            
+            await asyncio.sleep(10)
+            logger.info(f"[CD_Builder] Waiting for CI workflow to complete...")
+            ci_workflow_status = wait_for_latest_workflow(f"{repo_name}", f"{ci_file_name}", branch=branch)
+            logger.info(f"[CD_Builder] CI Workflow status: {ci_workflow_status}")
+            logger.info(f"[CD_Builder] Waiting for CD workflow to initialize...")
+            await asyncio.sleep(10)
+            workflow_status=wait_for_latest_workflow(f"{repo_name}", f"{target}-cd.yml", branch=branch)
+            details = get_cd_run_metadata(repo_name=repo_name, workflow_file_name=f"{target}-cd.yml", branch=branch)
+            print(details)
+            if workflow_status==True:
+                logger.info(f"[CD_Builder] Workflow status: {workflow_status}")
+            else:
+                logger.error(f"[CD_Builder] Workflow failed or timed out")
+                return f"Workflow failed or timed out"
+            # print(f"[CD_Builder] CD push result: {result}")
+            return {"TASK COMPLETED": {cd_script},
+                    "Details": details}
         else:
-            logger.error(f"[CD_Builder] Workflow failed or timed out")
-            return f"Workflow failed or timed out"
-        # print(f"[CD_Builder] CD push result: {result}")
-        return {"TASK COMPLETED": {cd_script},
-                "Details": details}
+            logger.error(f"[CD_Builder] CD script generation failed.")
+            return {
+                "ERROR": message
+            }
     except Exception as e:
         logger.error(f"[CD_Builder] Error occurred while creating CD pipeline: {e}", exc_info=True)
         # print(f"[CD_Builder] Error occurred while creating CD pipeline: {e}")
-   
+        return {
+           "ERROR": str(e)
+       }
+
 
 @tool(name="TF_Builder", description=str(ToolDescriptionPrompt("tf-builder-tool-description")), approval_mode="never_require")
 async def TF_Builder(cloud_provider: Annotated[str, Field(description="The cloud provider to be used for the infrastructure (e.g., 'azure', 'aws', 'gcp')")],
@@ -278,36 +299,44 @@ async def TF_Builder(cloud_provider: Annotated[str, Field(description="The cloud
 
         logger.info("[TF_Builder] Generating Terraform pipeline script using content generator...")
         # print("[TF_Builder] Generating Terraform pipeline script using content generator...")
-        tf_script = create_yaml_scripts(prompt)
 
-        tf_repo_name = f"{REPO_OWNER}/{TERRAFORM_MODULES_REPO}"
-        logger.info(f"[TF_Builder] Setting up secrets for TF pipeline in {tf_repo_name}")
-        # for key, value in azure_config.items():
-        #    await set_github_secret(f"{tf_repo_name}", key, value)
-        await set_github_secret(f"{tf_repo_name}", "AZURE_CREDENTIALS", json.dumps(azure_config))
-        logger.info(f"[TF_Builder] Pushing Terraform Pipeline script into the repository: {tf_repo_name}")
-        # print(f"[TF_Builder] Pushing Terraform Pipeline script into the repository: {tf_repo_name}")
-        result = github_push_files(
-            {f".github/workflows/{repo_name}-tf.yml": tf_script},
-            tf_repo_name,
-            "Added Terraform pipeline",
-            "main"
-        )
-        logger.info(f"[TF_Builder] TF push result: {result}")
-        # print(f"[TF_Builder] TF push result: {result}")
-        logger.info(f"[TF_Builder] Waiting for terraform workflow to complete...")
-        await asyncio.sleep(10)
-        workflow_status=wait_for_latest_workflow(f"{tf_repo_name}", f"{repo_name}-tf.yml")
-        if workflow_status==True:
-            logger.info(f"[TF_Builder] Workflow status: {workflow_status}")
+        status,tf_script,message = create_yaml_scripts(prompt)
+        if status:
+            tf_repo_name = f"{REPO_OWNER}/{TERRAFORM_MODULES_REPO}"
+            logger.info(f"[TF_Builder] Setting up secrets for TF pipeline in {tf_repo_name}")
+            # for key, value in azure_config.items():
+            #    await set_github_secret(f"{tf_repo_name}", key, value)
+            await set_github_secret(f"{tf_repo_name}", "AZURE_CREDENTIALS", json.dumps(azure_config))
+            logger.info(f"[TF_Builder] Pushing Terraform Pipeline script into the repository: {tf_repo_name}")
+            # print(f"[TF_Builder] Pushing Terraform Pipeline script into the repository: {tf_repo_name}")
+            result = github_push_files(
+                {f".github/workflows/{repo_name}-tf.yml": tf_script},
+                tf_repo_name,
+                "Added Terraform pipeline",
+                "main"
+            )
+            logger.info(f"[TF_Builder] TF push result: {result}")
+            # print(f"[TF_Builder] TF push result: {result}")
+            logger.info(f"[TF_Builder] Waiting for terraform workflow to complete...")
+            await asyncio.sleep(10)
+            workflow_status=wait_for_latest_workflow(f"{tf_repo_name}", f"{repo_name}-tf.yml")
+            if workflow_status==True:
+                logger.info(f"[TF_Builder] Workflow status: {workflow_status}")
+            else:
+                logger.error(f"[TF_Builder] Workflow failed or timed out")
+                return f"Workflow failed or timed out"
+
+            logger.info("[TF_Builder] TASK COMPLETED")
+            # print("[TF_Builder] TASK COMPLETED")
+            # print("==================TASK Completed===================")
+            return f"TASK COMPLETED: {tf_script}"
         else:
-            logger.error(f"[TF_Builder] Workflow failed or timed out")
-            return f"Workflow failed or timed out"
-
-        logger.info("[TF_Builder] TASK COMPLETED")
-        # print("[TF_Builder] TASK COMPLETED")
-        # print("==================TASK Completed===================")
-        return f"TASK COMPLETED: {tf_script}"
+            return{
+                "Error": message
+            }
     except Exception as e:
         logger.error(f"[TF_Builder] Error occurred while creating Terraform pipeline: {e}", exc_info=True)
+        return {
+            "Error": str(e)
+        }
         # print(f"[TF_Builder] Error occurred while creating Terraform pipeline: {e}")
