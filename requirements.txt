@@ -10,3 +10,4 @@ azure-identity
 python-dotenv
 httpx
 PyGithub
+python-hcl2

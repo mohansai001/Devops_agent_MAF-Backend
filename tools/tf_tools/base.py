@@ -15,9 +15,9 @@ logger = get_logger(__name__)
 
 from ..yaml_tools.content_generator import create_yaml_scripts
 
-def get_azure_response(content, file_name, cloud_provider, resource_group_dict, resource, techstack):
-    logger.info("[get_azure_response] Inside azure call.....")
-    print("Inside azure call.....")
+def tf_get_azure_response(content, file_name, cloud_provider, resource_group_dict, resource, techstack):
+    logger.info("[tf_get_azure_response] Preparing Terraform prompt to generate script.....")
+    # print("Inside azure call.....")
     
     # Convert dictionaries to strings for the prompt if needed
     resource_str = json.dumps(resource, indent=2) if isinstance(resource, dict) else str(resource)
@@ -26,12 +26,12 @@ def get_azure_response(content, file_name, cloud_provider, resource_group_dict, 
     text = text.render(content = content, resource_str = resource_str, resource_group_str = resource_group_str, cloud_provider = cloud_provider, file_name = file_name, techstack = techstack)  
     print("="*30 + f"\n prompt to tf_module_builder : {text}\n" + "="*30)
     try:
-        response = create_yaml_scripts(text)
-        logger.info("[get_azure_response] Azure AI response received.")
-        print("[get_azure_response] Azure AI response received.")
+        response = create_yaml_scripts(text,language="hcl")
+        logger.info("[tf_get_azure_response] Azure AI response received.")
+        print("[tf_get_azure_response] Azure AI response received.")
         return response
     except Exception as e:
-        logger.error(f"[get_azure_response] Azure Error: {str(e)}", exc_info=True)
+        logger.error(f"[tf_get_azure_response] Azure Error: {str(e)}", exc_info=True)
         print(f"Azure Error: {str(e)}")
         return f"Azure Error: {str(e)}"
     
@@ -145,7 +145,7 @@ async def TF_Module_builder(
                         # print(f"Calling Azure AI for {file_name}")
                         
                         try:
-                            updated_content = get_azure_response(
+                            updated_content = tf_get_azure_response(
                                 content=content,
                                 file_name=file_name,
                                 cloud_provider=cloud_provider,
