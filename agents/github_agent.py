@@ -23,7 +23,7 @@ class GithubAgent(Base_Agent):
     name = "github_agent"
     instructions = str(AgentInstructionPrompt("github-agent-instructions"))
     tools = [
-        get_user, commit_files, read_file,  set_secret,
+        get_user, commit_files, read_file,
         list_branches, create_branch, list_commits, list_workflows,
         create_pull_request, create_issue, create_release,
     ]

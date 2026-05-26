@@ -73,7 +73,7 @@ from adapters.github.base import GitHubAPIWrapper
 from utils.config import github_token as GITHUB_TOKEN
 
 def _get_wrapper() -> GitHubAPIWrapper:
-    return GitHubAPIWrapper(GITHUB_TOKEN)
+    return GitHubAPIWrapper()
 
 
 # ── list_branches ─────────────────────────────────────────────────────────────
@@ -172,6 +172,7 @@ def create_pull_request(
         print("Error:", str(e))
         return {"error": str(e)}
 
+import traceback
 
 # ── create_issue ──────────────────────────────────────────────────────────────
 
@@ -184,12 +185,25 @@ def create_issue(
     body: Annotated[str, Field(description=_git_create_issue_fields.get("body"))],
 ):
     try:
-        print(f"Create issue tool called with details - Repo: {repo_full_name}, Title: {title}, Body: {body}")
-        issue = _get_wrapper().create_issue(repo_full_name, title=title, body=body)
+        print("STEP 1")
+
+        wrapper = _get_wrapper()
+
+        print("STEP 2:", wrapper)
+        print(f"[Creat issue] tool called with details - Repo: {repo_full_name}, Title: {title}, Body: {body}")
+        issue = wrapper.create_issue(repo_full_name, title=title, body=body)
+        print("STEP 3:", issue)
+
+        print({"number": issue.number, "url": issue.html_url, "state": issue.state})
         return {"number": issue.number, "url": issue.html_url, "state": issue.state}
     except Exception as e:
-        print("Error:", str(e))
-        return {"error": str(e)}
+        print("EXCEPTION OCCURRED")
+        traceback.print_exc()
+
+        return {
+            "error": str(e),
+            "type": str(type(e))
+        }
 
 
 # ── create_release ────────────────────────────────────────────────────────────

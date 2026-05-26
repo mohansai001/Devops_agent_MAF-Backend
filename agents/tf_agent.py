@@ -22,7 +22,7 @@ async def terraform_agent(prompt: Annotated[str, Field(description="Full prompt 
     # logger.debug(f"[terraform_agent] Prompt: {prompt}")
     # print(f"[terraform_agent] Prompt: {prompt}")
     try:
-        result = await TfAgent.get_instance().run(prompt)
+        result = await TfAgent.get_instance().run(prompt) #type: ignore
         logger.info("[terraform_agent] Successfully generated Terraform output.")
         print("[terraform_agent] Successfully generated Terraform output.")
         # logger.debug(f"[terraform_agent] Output: {result}")

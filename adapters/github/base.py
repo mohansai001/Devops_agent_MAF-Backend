@@ -3,9 +3,8 @@ from typing import Optional, List, Dict, Any
 from utils.github_client import get_github_client
 
 class GitHubAPIWrapper:
-    def __init__(self, github_token: str):
-        git_token = github_token if github_token else get_github_client()
-        self.g = Github(github_token)
+    def __init__(self, g: Github = None):
+        self.g = g if g else get_github_client()
 
 
     def get_repo(self, full_name: str):
@@ -113,8 +112,30 @@ class GitHubAPIWrapper:
     # 🐛 Issues
     def create_issue(self, repo_full_name, title, body=None, assignee=None, labels=None, milestone=None):
         repo = self.get_repo(repo_full_name)
-        return repo.create_issue(title=title, body=body, assignee=assignee, labels=labels, milestone=milestone)
+        
+        # PyGitHub silently ignores None for labels — pass empty list explicitly
+        kwargs = {
+            "title": title
+        }
 
+        if body is not None:
+            kwargs["body"] = body
+
+        if assignee is not None:
+            kwargs["assignee"] = assignee
+
+        if labels is not None:
+            kwargs["labels"] = labels
+
+        if milestone is not None:
+            kwargs["milestone"] = milestone
+
+        issue = repo.create_issue(**kwargs)
+
+        return issue
+        
+        print(f"[create_issue] Created issue #{issue.number}: {issue.html_url}")
+        return issue
     # ... Add all other Issue methods similarly ...
 
     # 🌿 Branches & Git Objects

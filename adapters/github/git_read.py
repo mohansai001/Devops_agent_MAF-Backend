@@ -12,7 +12,7 @@ from github import Github #type: ignore
 logger=get_logger(__name__)
 g = get_github_client()
 
-def github_read_contents(path, repo_owner=REPO_OWNER, repo_name="Terraform_modules"):
+def github_read_contents(path, repo_owner=REPO_OWNER, repo_name="Terraform_modules",g = g):
     logger.info(f"[github_agent] [github_read_contents] Reading content from path: {path}")
     try:
         
