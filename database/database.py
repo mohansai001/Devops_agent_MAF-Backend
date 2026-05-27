@@ -12,7 +12,11 @@ if not dbconfig.cloud_db:
 
 engine = create_engine(
     dbconfig.cloud_db,
-    echo=True
+    echo=True,
+    pool_pre_ping=True,
+    pool_recycle=300,
+    pool_size=10,
+    max_overflow=20
 )
 
 sessionlocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
@@ -22,9 +26,16 @@ class Base(DeclarativeBase):
 
 def get_db():
     db = sessionlocal()
+
     try:
         yield db
+        db.commit()
+
+    except Exception:
+        db.rollback()
+        raise
+
     finally:
-        db.close()
+        db.close()   
 
 db_dependency = Annotated[Session, Depends(get_db)]

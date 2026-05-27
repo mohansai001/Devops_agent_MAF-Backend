@@ -1,0 +1,10 @@
+Create a CI YAML workflow file with the given below details.
+
+ci_platform:{ci_platform}
+language:{language}
+framework:{framework}
+
+then push it into given repository details.
+
+repo:{repo}
+branch:{branch}

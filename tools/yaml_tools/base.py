@@ -133,36 +133,36 @@ async def CI_Builder(tool: Annotated[str, Field(description="The CI tool to used
         # ci_repo_name = "Workflow-files"  # Make ci_repo_name dynamic while deploying.....
         
         # print(f"[CI_Builder] Pushing CI Pipeline script into the repository: {ci_repo_name}")
-        if status:
-            logger.info(f"[CI_Builder] Pushing CI Pipeline script into the repository: {repo_name}")
-            result = github_push_files(
-                {f".github/workflows/{techstack}-ci.yml": ci_script},
-                f"{repo_name}",
-                "Pushed by hari",
-                branch_name,
-                g = get_github_client(hari_github_token)
-            )
-            logger.info(f"[CI_Builder] CI push result: {result}")
-            logger.info(f"[CI_Builder] Waiting for CI workflow to initialize...")
-            await asyncio.sleep(10)
-            workflow_status=wait_for_latest_workflow(repo_name=repo_name,branch=branch_name, workflow_file_name=f"{techstack}-ci.yml")
-            if workflow_status==True:
-                art_name, workflow_name = get_artifact_name_from_run(repo_name=repo_name, workflow_file_name=f"{techstack}-ci.yml", branch=branch_name)
-                logger.info(f"[CI_Builder] Workflow status: {workflow_status}")
-            else:
-                logger.error(f"[CI_Builder] Workflow failed or timed out")
-                return f"Workflow failed or timed out"
-            # print(f"[CD_Builder] CD push result: {result}")
-            return {"TASK COMPLETED" : ci_script,
-                    "Artifact_name" : art_name,
-                    "Workflow_name": workflow_name,
-                    "ci_filename": f"{techstack}-ci.yml"}
-            # print(f"[CI_Builder] CI push result: {result}")
-        else:
-            logger.info(f"[CI_Builder] CI script generation failed.{message}")
-            return{
-                "Error": message
-            }
+        # if status:
+        #     logger.info(f"[CI_Builder] Pushing CI Pipeline script into the repository: {repo_name}")
+        #     result = github_push_files(
+        #         {f".github/workflows/{techstack}-ci.yml": ci_script},
+        #         f"{repo_name}",
+        #         "Pushed by hari",
+        #         branch_name,
+        #         g = get_github_client(hari_github_token)
+        #     )
+        #     logger.info(f"[CI_Builder] CI push result: {result}")
+        #     logger.info(f"[CI_Builder] Waiting for CI workflow to initialize...")
+        #     await asyncio.sleep(10)
+        #     workflow_status=wait_for_latest_workflow(repo_name=repo_name,branch=branch_name, workflow_file_name=f"{techstack}-ci.yml")
+        #     if workflow_status==True:
+        #         art_name, workflow_name = get_artifact_name_from_run(repo_name=repo_name, workflow_file_name=f"{techstack}-ci.yml", branch=branch_name)
+        #         logger.info(f"[CI_Builder] Workflow status: {workflow_status}")
+        #     else:
+        #         logger.error(f"[CI_Builder] Workflow failed or timed out")
+        #         return f"Workflow failed or timed out"
+        #     # print(f"[CD_Builder] CD push result: {result}")
+        return {"TASK COMPLETED" : ci_script}
+        #             # "Artifact_name" : art_name,
+        #             # "Workflow_name": workflow_name,
+        #             # "ci_filename": f"{techstack}-ci.yml"}
+        #     # print(f"[CI_Builder] CI push result: {result}")
+        # else:
+        #     logger.info(f"[CI_Builder] CI script generation failed.{message}")
+        #     return{
+        #         "Error": message
+        #     }
     except Exception as e:
             logger.error(f"[CI_Builder] Error occurred while creating CI pipeline: {e}", exc_info=True)
             # print(f"[CI_Builder] Error occurred while creating CI pipeline: {e}")
@@ -340,3 +340,6 @@ async def TF_Builder(cloud_provider: Annotated[str, Field(description="The cloud
             "Error": str(e)
         }
         # print(f"[TF_Builder] Error occurred while creating Terraform pipeline: {e}")
+
+def yaml_update():
+    pass
