@@ -12,8 +12,8 @@ content= """
         - This is dummy content
         - Created for testing purposes"""
 
-from agents.co_ordinator_agent import CoOrdinatorAgent
-from agents.github_agent import GithubAgent
+from agents.CO_ORDINATOR_AGENT.co_ordinator_agent import CoOrdinatorAgent
+from agents.GITHUB_AGENT.github_agent import GithubAgent
 import asyncio
 from utils.prompt_manager_v2 import TestUserPrompt
 

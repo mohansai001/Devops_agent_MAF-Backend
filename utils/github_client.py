@@ -1,5 +1,5 @@
 # from utils.config import hari_github_token as github_token
-from utils.config import github_token
+from utils.config import hari_github_token as github_token
 from github import Github, Auth #type: ignore
 from utils.request_context import github_pat_ctx
 

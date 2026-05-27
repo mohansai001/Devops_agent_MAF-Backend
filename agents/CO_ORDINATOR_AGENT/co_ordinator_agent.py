@@ -1,7 +1,7 @@
-from .Base_agent import Base_Agent
-from .yaml_agent import yaml_agent
-from .github_agent import github_agent
-from .tf_agent import terraform_agent
+from ..Base_agent import Base_Agent
+from ..YAML_AGENT.yaml_agent import yaml_agent
+from ..GITHUB_AGENT.github_agent import github_agent
+from ..TERRAFORM_AGENT.tf_agent import terraform_agent
 from utils.prompt_manager_v2 import AgentInstructionPrompt
 from agent_framework import InMemoryHistoryProvider #type: ignore
 

@@ -1,13 +1,13 @@
 from fastapi import APIRouter, Header, HTTPException, Depends #type: ignore
-from agents.co_ordinator_agent import CoOrdinatorAgent
+from agents.CO_ORDINATOR_AGENT.co_ordinator_agent import CoOrdinatorAgent
 from utils.crud_ops import get_triggered_record_by_id
 from database.database import db_dependency
 from utils.prompt_manager_v2 import TestUserPrompt
 from fastapi.responses import StreamingResponse # type: ignore
 from utils.fallback_pipeline import fallback_pipeline
 from models.requests.Agents_requests import github_agent_request, yaml_agent_request, terraform_agent_request
-from agents.github_agent import github_agent
-from agents.yaml_agent import yaml_agent
+from agents.GITHUB_AGENT.github_agent import github_agent
+from agents.YAML_AGENT.yaml_agent import yaml_agent
 from utils.request_context import github_pat_ctx
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials #type: ignore
 

@@ -1,11 +1,11 @@
 from utils.logger import get_logger
 logger = get_logger(__name__)
-from tools.tf_tools.base import TF_Module_builder
+from .tf_tools.base import TF_Module_builder
 from agent_framework import tool #type: ignore
 from typing import Annotated
 from pydantic import Field
 from utils.prompt_manager_v2 import AgentInstructionPrompt, AgentDescriptionPrompt
-from .Base_agent import Base_Agent
+from ..Base_agent import Base_Agent
 
 
 class TfAgent(Base_Agent):
