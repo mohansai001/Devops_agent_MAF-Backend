@@ -2,6 +2,7 @@ from pathlib import Path
 from enum import Enum
 import string
 import yaml 
+import requests
 
 class PromptType(Enum):
     AGENT_INSTRUCTION = "agent_instructions"
@@ -21,44 +22,84 @@ class SafeDict(dict):
 
 
 class PromptManager:
-    BASE_DIR = Path("prompts")
+    GITHUB_OWNER = "mohansai001"
+    GITHUB_REPO = "Devops_agent_MAF-Backend"
+    GITHUB_BRANCH = "main"
 
     def __init__(self) :
         self.cache = {}
-        self._type_dirs = {pt: self.BASE_DIR / pt.value for pt in PromptType}
+        self._type_dirs = {pt: pt.value for pt in PromptType}
 
-    def _resolve_path(self, prompt_type: PromptType, prompt_name: str) -> Path:
-        return self._type_dirs[prompt_type] / f"{prompt_name}.txt"
-    
-    def _resolve_yaml_path(self, prompt_type: PromptType, prompt_name: str) -> Path:
-        return self._type_dirs[prompt_type] / f"{prompt_name}.yaml"
+    def _github_txt_url(
+        self,
+        prompt_type: PromptType,
+        prompt_name: str
+    ) -> str:
+        return (
+            f"https://raw.githubusercontent.com/"
+            f"{self.GITHUB_OWNER}/"
+            f"{self.GITHUB_REPO}/"
+            f"{self.GITHUB_BRANCH}/"
+            f"prompts/{prompt_type.value}/{prompt_name}.txt"
+        )
+
+    def _github_yaml_url(
+        self,
+        prompt_type: PromptType,
+        prompt_name: str
+    ) -> str:
+        return (
+            f"https://raw.githubusercontent.com/"
+            f"{self.GITHUB_OWNER}/"
+            f"{self.GITHUB_REPO}/"
+            f"{self.GITHUB_BRANCH}/"
+            f"prompts/{prompt_type.value}/{prompt_name}.yaml"
+        )
+
+
 
     def load(self, prompt_type: PromptType, prompt_name: str) -> str:
-        cache_key = (prompt_type, prompt_name)
+        cache_key = ("txt", prompt_type, prompt_name)
+
         if cache_key in self.cache:
             return self.cache[cache_key]
 
-        file_path = self._resolve_path(prompt_type, prompt_name)
+        url = self._github_txt_url(prompt_type, prompt_name)
 
-        with open(file_path, "r", encoding="utf-8") as f:
-            template = f.read()
+        response = requests.get(url, timeout=10)
+        response.raise_for_status()
+
+        template = response.text
 
         self.cache[cache_key] = template
         return template
-    
-    def load_yaml(self, prompt_type: PromptType, prompt_name: str) -> dict:  # 👈 new
-        cache_key = (prompt_type, prompt_name)
+
+    def load_yaml(
+        self,
+        prompt_type: PromptType,
+        prompt_name: str
+    ) -> dict:
+        cache_key = ("yaml", prompt_type, prompt_name)
+
         if cache_key in self.cache:
             return self.cache[cache_key]
 
-        file_path = self._resolve_yaml_path(prompt_type, prompt_name)
-        with open(file_path, "r", encoding="utf-8") as f:
-            data = yaml.safe_load(f)
+        url = self._github_yaml_url(prompt_type, prompt_name)
+
+        response = requests.get(url, timeout=10)
+        response.raise_for_status()
+
+        data = yaml.safe_load(response.text)
 
         self.cache[cache_key] = data
         return data
 
-    def format(self, prompt_type: PromptType, prompt_name: str, **kwargs) -> str:
+    def format(
+        self,
+        prompt_type: PromptType,
+        prompt_name: str,
+        **kwargs
+    ) -> str:
         template = self.load(prompt_type, prompt_name)
         return template.format_map(kwargs)
 
@@ -76,7 +117,7 @@ class BasePrompt:
             if field_name is not None
         )
     
-    def list_prompts(self):
+    """def list_prompts(self):
         result = {}
         for pt in PromptType:
             folder = PromptManager.BASE_DIR / pt.value
@@ -87,7 +128,7 @@ class BasePrompt:
                 ]
             else:
                 result[pt.value] = []
-        return result
+        return result"""
 
     def render(self, **kwargs) -> str:
         missing = self._required_keys - kwargs.keys()          # reuses pre-computed keys
@@ -169,6 +210,6 @@ if __name__ == "__main__":
 
     # Access raw template string
     # print(instruction.get("resources"))
-    text = GeneratorPrompt("terraform-generator")
-    text = text.render(content = "content1", resource_str = "resource_str", resource_group_str = "resource_group_str", cloud_provider = "cloud_provider", file_name = "file_name")
+    text = AgentDescriptionPrompt("github-agent-description")
+    # text = text.render(content = "content1", resource_str = "resource_str", resource_group_str = "resource_group_str", cloud_provider = "cloud_provider", file_name = "file_name")
     print(text)
