@@ -1,11 +1,11 @@
 from agent_framework import tool #type: ignore
 from typing import Annotated
 from pydantic import Field
-from utils.prompt_manager_v2 import ToolDescriptionPrompt, ToolFieldsPrompt
-from utils.github_client import get_github_client
-from adapters.github.git_write import commit_files as github_commit_files, set_github_secret as github_set_secret
-from adapters.github.git_read import github_read_contents, wait_for_latest_workflow
-from adapters.github.git_search import github_find_folder
+from vida.utils.prompt_manager_v2 import ToolDescriptionPrompt, ToolFieldsPrompt
+from vida.utils.github_client import get_github_client
+from vida.adapters.github.git_write import commit_files as github_commit_files, set_github_secret as github_set_secret
+from vida.adapters.github.git_read import github_read_contents, wait_for_latest_workflow
+from vida.adapters.github.git_search import github_find_folder
 
 
 @tool(name="get_user", description=str(ToolDescriptionPrompt("git-get-user-tool-description")), approval_mode="never_require")
