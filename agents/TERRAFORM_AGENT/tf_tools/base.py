@@ -13,7 +13,7 @@ logger = get_logger(__name__)
 
 
 
-from ..yaml_tools.content_generator import create_yaml_scripts
+from .agents.YAML_AGENT.yaml_tools.content_generator import create_yaml_scripts
 
 def tf_get_azure_response(content, file_name, cloud_provider, resource_group_dict, resource, techstack):
     logger.info("[tf_get_azure_response] Preparing Terraform prompt to generate script.....")
