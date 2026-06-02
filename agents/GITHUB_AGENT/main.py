@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from .api import router as github_agent_router
+from api import router as github_agent_router
 from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
