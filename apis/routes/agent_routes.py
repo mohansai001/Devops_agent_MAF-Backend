@@ -4,7 +4,7 @@ from utils.crud_ops import get_triggered_record_by_id
 from database.database import db_dependency
 from utils.prompt_manager_v2 import TestUserPrompt
 from fastapi.responses import StreamingResponse # type: ignore
-from utils.fallback_pipeline import fallback_pipeline
+# from utils.fallback_pipeline import fallback_pipeline
 from models.requests.Agents_requests import github_agent_request, yaml_agent_request, terraform_agent_request
 from agents.GITHUB_AGENT.github_agent import github_agent
 from agents.YAML_AGENT.yaml_agent import yaml_agent
@@ -80,7 +80,7 @@ async def co_ordinator_agent_call(db:db_dependency,id: int, authorization: HTTPA
     # )
     
 
-
+"""
 @router.get("/agent/{id}")
 async def agent_call(db:db_dependency,id: int):
     record_data = await get_triggered_record_by_id(db, id)
@@ -98,7 +98,7 @@ async def agent_call(db:db_dependency,id: int):
     # response = await agent.run(prompt) #type: ignore
     response = await fallback_pipeline(db=db, id=id) #type: ignore
     return response
-
+"""
 
 
 
