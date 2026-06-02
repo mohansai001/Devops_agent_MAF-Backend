@@ -8,7 +8,7 @@ on:
       - 'agents/GITHUB_AGENT/**'
       - '.github/workflows/deploy-github-agent.yml'
 
-  workflow_dispatch:
+  workflow_dispatch: 
 
 env:
   IMAGE_NAME: github-agent
