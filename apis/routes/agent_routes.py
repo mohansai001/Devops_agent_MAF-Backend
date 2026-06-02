@@ -131,29 +131,16 @@ async def github_agent_call(request: github_agent_request, authorization: HTTPAu
         github_pat_ctx.reset(token_ref)
 
 @router.post("/yaml_agent")
-async def yaml_agent_call(request: yaml_agent_request, authorization: HTTPAuthorizationCredentials = Depends(security)):
-    print("SCHEME:", authorization.scheme)
-    print("AUTH:", authorization.credentials)
+async def yaml_agent_call(request: yaml_agent_request):
 
-    if not authorization:
-        raise HTTPException(
-            status_code=401,
-            detail="Missing token"
-        )
-    git_token = authorization.credentials #.replace("Bearer ", "")
-    print(f"Token received: {git_token}")
     prompt = request.prompt
 
-    token_ref = github_pat_ctx.set(git_token)
 
-    try:
-        response = await yaml_agent(prompt)
-        print(f"YAML AGENT RESPONSE: {response}")
+    # try:
+    response = await yaml_agent(prompt)
+    print(f"YAML AGENT RESPONSE: {response}")
 
-        return {
-            "response": f"YAML agent executed successfully",
-            "agent_output": response
-        }
-
-    finally:
-        github_pat_ctx.reset(token_ref)
+    return {
+        "response": f"YAML agent executed successfully",
+        "agent_output": response
+    }
