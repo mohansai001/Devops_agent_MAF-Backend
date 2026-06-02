@@ -9,7 +9,7 @@ class CoOrdinatorAgent(Base_Agent):
     name = "Co_ordinator"
     # debug_context = True
     instructions = str(AgentInstructionPrompt("co-ordinator-instructions"))
-    tools = [yaml_agent, github_agent, terraform_agent]
+    tools = [yaml_agent, github_agent]
     context_providers = [
         InMemoryHistoryProvider(load_messages=True),
         InMemoryHistoryProvider("audit", load_messages=False, store_context_messages=True),
