@@ -3,7 +3,7 @@ name: Build and Deploy GitHub Agent
 on:
   push:
     branches:
-      - main
+      - new-branch
     paths:
       - 'agents/GITHUB_AGENT/**'
       - '.github/workflows/deploy-github-agent.yml'
