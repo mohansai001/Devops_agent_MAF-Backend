@@ -91,7 +91,7 @@ jobs:
             --resource-group ${{ secrets.RESOURCE_GROUP }} \
             --server ${{ secrets.ACR_NAME }}.azurecr.io \
             --username ${{ secrets.ACR_USERNAME }} \
-            --password ${{ secrets.ACR_PASSWORD }}
+            --password ${{ secrets.ACR_PASSWORD }} 
 
           az containerapp update \
             --name ${{ env.CONTAINER_APP_NAME }} \
