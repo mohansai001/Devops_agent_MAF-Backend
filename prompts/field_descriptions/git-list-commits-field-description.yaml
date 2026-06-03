@@ -1,2 +1,3 @@
 repo_full_name: "Full repository name in 'owner/repo' format. Example: 'Hari-var/insure-flow-webapp'."
 branch: "Branch name to list commits from. Example: 'main'."
+no_of_commits:"Integer of no of commits the user has asked to return Example: 'if user asked first five then return 5 if asked last five return -5' "
