@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from vida.models.requests.Agents_requests import github_agent_request
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials #type: ignore
 from vida.utils.request_context import github_pat_ctx
-from agents.GITHUB_AGENT.github_agent import github_agent
+from github_agent import github_agent
 router = APIRouter()
 security = HTTPBearer()
 
