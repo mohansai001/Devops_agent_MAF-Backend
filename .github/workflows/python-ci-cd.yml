@@ -1,14 +1,15 @@
-name: Python CI-CD Pipeline
+name: Github-Agent CI-CD Pipeline  
 
 on:
- # push:
-  #  branches: ["main"]
- # pull_request:
+  push:
+    branches:
+      - Github_agent
+
   workflow_dispatch:
 
 env:
-  PYTHON_VERSION: "3.13.1"
-  AZURE_WEBAPP_NAME: "devopsagent-backend"
+  PYTHON_VERSION: "3.12"
+  AZURE_WEBAPP_NAME: "Github-agent-backend"
 
 jobs:
   build:
@@ -29,19 +30,20 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      # Create deployment package
-      - name: Archive Application
+      - name: Create Deployment Package
         run: |
-          zip -r app.zip .
+          zip -r app.zip . \
+            -x ".git/*" \
+            -x ".github/*" \
+            -x "__pycache__/*" \
+            -x "*.pyc"
 
-      # Upload artifact
       - name: Upload Build Artifact
         uses: actions/upload-artifact@v4
         with:
           name: python-app
           path: app.zip
-          
-  # SAST present bypass this stage 
+
   sast:
     name: Security Scan (SAST)
     runs-on: ubuntu-latest
@@ -52,22 +54,20 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      # Semgrep
       - name: Run Semgrep
         uses: returntocorp/semgrep-action@v1
         with:
-          config: "auto"
+          config: auto
 
-      # Gitleaks
       - name: Run Gitleaks
         run: |
-          docker run --rm -v ${{ github.workspace }}:/path \
+          docker run --rm \
+          -v ${{ github.workspace }}:/path \
           zricethezav/gitleaks:latest detect \
           --source="/path" \
           --verbose \
           --redact
 
-      # Trivy
       - name: Run Trivy FS Scan
         uses: aquasecurity/trivy-action@master
         with:
@@ -76,25 +76,22 @@ jobs:
           format: table
           severity: HIGH,CRITICAL
           exit-code: 1
-  
 
   deploy:
     name: Deploy to Azure Web App
     runs-on: ubuntu-latest
-    needs: [build]
+    needs: build
     environment: production
 
     steps:
-      # Download artifact from build stage
       - name: Download Build Artifact
         uses: actions/download-artifact@v4
         with:
           name: python-app
 
-      # Deploy to Azure Web App
       - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v3
         with:
           app-name: ${{ env.AZURE_WEBAPP_NAME }}
-          publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
+          publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE_GA }}
           package: app.zip
