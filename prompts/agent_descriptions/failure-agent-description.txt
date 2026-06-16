@@ -1,0 +1,2 @@
+this agent works as a failure agent to the the current working agents
+When any agent fails under any circumstances, this agent should be called and it will check what is the error about and finds out what could be the potential solution for the solution and also classifies whether this can be solved by the agents itself or human intervention is needed
