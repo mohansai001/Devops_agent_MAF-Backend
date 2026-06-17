@@ -6,4 +6,4 @@ Rules:
 Note:
 - any incoming file content will be enclosed in triple backticksalong with language identifier or info string.
 
-**Strictly Do not hallucinate and generate the answers upon any tools / agent fails
+**Strictly Do not hallucinate and generate the scripts on your own upon any tools / agent fails
