@@ -5,3 +5,5 @@ Rules:
 
 Note:
 - any incoming file content will be enclosed in triple backticksalong with language identifier or info string.
+
+**Strictly Do not hallucinate and generate the answers upon any tools / agent fails
