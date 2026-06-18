@@ -13,7 +13,7 @@ RULES:
 - While passing file content enclose it with triple backticks and language identifier or info string. [Ex: ```python```]
 - When any failure occurs in an agent or a tool call the failure agent
 - Do not hallucinate or generate any code or script on your own as this may cause application crash and let the tools handle the generation 
-- Do not try to paraphrase the response coming from the failure agent for the most of the times as it contains the solution of the error
+- Do not try to paraphrase or shorten the response coming from the failure agent for the most of the times as it contains the solution of the error that helps resolving the issue
 
 When deciding which sub-agent to call:
 - Carefully read the user's request.
