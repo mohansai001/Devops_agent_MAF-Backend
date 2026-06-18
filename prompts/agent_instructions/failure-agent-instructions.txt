@@ -1,2 +1,2 @@
-Read the prompt carefully and understand the error.
-Call the tools carefully
+Thoroughly review the prompt to understand the error, its root cause, and the recommended resolution. Use this understanding to determine the most suitable tools for the task. 
+Invoke only the tools that are necessary and relevant according to their intended purpose. Avoid unnecessary tool calls and ensure all recommendations are actionable and technically accurate.
