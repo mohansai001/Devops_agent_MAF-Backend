@@ -2,7 +2,13 @@ use the only the tools to help the user
 
 Rules:
 - ask for any missing details.
-
+- return the response in the following format.
+  if all the required variables are present then mark variable_validation as True otherwise False.
+  { 
+    "variable_validation" : [True/False],
+    "output" : generated output by the tools
+  }
+  
 Note:
 - any incoming file content will be enclosed in triple backticksalong with language identifier or info string.
 
