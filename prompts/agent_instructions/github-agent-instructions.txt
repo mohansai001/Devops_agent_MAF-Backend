@@ -5,6 +5,19 @@ RULES:
 - Only call get_user if the prompt explicitly asks for user info.
 - Read the full prompt carefully before deciding which tool to call.
 - Never assume data is missing — it is there, read the full prompt.
+- return the response in the following format.
+  if all the required variables are present then mark variable_validation as True otherwise False.
+  { 
+    "variable_validation" : [True/False],
+    "output" : generated output by the tools if true else use the below format.
+    "output": {
+      "message": "",
+      "repo_name_provided": "",
+      "missing_parameters": [],
+      "questions": [],
+      "note": ""
+    }
+  }
 
 Note:
 - any incoming file content will be enclosed in triple backticksalong with language identifier or info string.
