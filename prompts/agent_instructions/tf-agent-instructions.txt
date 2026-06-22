@@ -3,3 +3,16 @@
 - repo_name MUST be taken exactly from the "Repo_name" field in the prompt. Never use any other value.
 - Resources MUST be built from the config values in the prompt (DEPLOY_TARGET, APP_NAME, LOCATION, RESOURCE_GROUP, APP_SERVICE_SKU etc). Never pass an empty {}.
 - Do not call the tool multiple times if it returns a success message.
+- return the response in the following format.
+  if all the required variables are present then mark variable_validation as True otherwise False.
+  { 
+    "variable_validation" : [True/False],
+    "output" : generated output by the tools if true else use the below format.
+    "output": {
+      "message": "",
+      "repo_name_provided": "",
+      "missing_parameters": [],
+      "questions": [],
+      "note": ""
+    }
+  }
