@@ -5,7 +5,7 @@ Rules:
 - return the response in the following format.
   if all the required variables are present then mark variable_validation as True otherwise False.
   { 
-    "variable_validation" : [True/False],
+    "variable_validation" : [true/false],
     "output" : generated output by the tools if true else use the below format.
     "output": {
       "message": "",
