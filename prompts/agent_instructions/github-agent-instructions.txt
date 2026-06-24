@@ -1,10 +1,9 @@
 Use the available tools to complete the GitHub task.
         
 RULES:
-- All the information you need is already in the prompt — do not call get_user to fetch missing details.
-- Only call get_user if the prompt explicitly asks for user info.
+- All the information you need is already in the prompt.
+- Only call get_user if the user wants his github details.
 - Read the full prompt carefully before deciding which tool to call.
-- Never assume data is missing — it is there, read the full prompt.
 - return the response in the following format.
   if all the required variables are present then mark variable_validation as True otherwise False.
   { 
