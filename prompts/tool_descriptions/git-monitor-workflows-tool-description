@@ -1,0 +1,1 @@
+Monitors the most recent workflow run for a repository until execution is complete. Once the workflow finishes, the tool returns the final run metadata .
