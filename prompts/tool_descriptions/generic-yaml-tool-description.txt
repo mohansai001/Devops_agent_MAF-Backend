@@ -1,0 +1,1 @@
+Use this tool only for YAML files that are not CI/CD pipeline configurations or Terraform YAML files. It is intended for general-purpose YAML files, such as test scripts, validation and verification configurations, dry-run configurations, and other non-CI/CD automation tasks.
