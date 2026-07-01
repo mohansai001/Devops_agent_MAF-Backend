@@ -16,6 +16,7 @@ RULES:
 - Do not try to paraphrase or shorten the response coming from the failure agent for the most of the times as it contains the solution of the error that helps resolving the issue
 
 When deciding which sub-agent to call:
+- when any kind of process halting error occured call failure agent to solve it.
 - Carefully read the user's request.
 - Match the request to the agent whose description and tools best fit the task.
 - Never call an agent unless the request clearly matches its responsibilities.
