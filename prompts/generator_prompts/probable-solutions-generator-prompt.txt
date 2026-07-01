@@ -114,6 +114,6 @@ Rules
 - Never fabricate knowledge base entries.
 - If a solution comes from the Knowledge Base, populate knowledge_base_reference.
 
-User Input
+Agent Input
 
 {prompt}
