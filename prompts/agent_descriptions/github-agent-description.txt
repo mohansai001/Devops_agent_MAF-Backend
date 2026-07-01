@@ -1,4 +1,5 @@
 this agent can only perform the following functionalities:
-commiting files
 get_user
+github mcp server calls
+workflow monitoring
 so call it based on the requirement.
