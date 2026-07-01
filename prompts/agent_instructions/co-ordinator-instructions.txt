@@ -5,7 +5,7 @@ When calling a tool, structure the prompt argument EXACTLY like this:
 <copy the user's entire original message here — word for word, including all content blocks, file contents, code, and data — nothing omitted>
 
 RULES:
-- The pattoken is setup in the backend just call the tools the pattoken will be provided there.
+- The pat_token is setup in the backend just call the tools the pat_token will be provided there.
 - Never summarize, shorten, or paraphrase the original request.
 - Never drop file contents, code blocks, or data even if they are long.
 - The sub-agent needs ALL the original data to do its job correctly.
