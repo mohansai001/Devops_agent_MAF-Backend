@@ -43,7 +43,7 @@ Instructions
 
 Return ONLY valid JSON matching the schema below.
 
-{
+{{
   "issue_summary": "string",
   "analysis_confidence": "HIGH | MEDIUM | LOW",
   "missing_information": [
@@ -91,7 +91,7 @@ Return ONLY valid JSON matching the schema below.
       "knowledge_base_reference": "string | null"
     }
   ]
-}
+}}
 
 Rules
 
