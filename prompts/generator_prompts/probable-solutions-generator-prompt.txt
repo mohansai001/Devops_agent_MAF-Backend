@@ -50,25 +50,25 @@ Return ONLY valid JSON matching the schema below.
     "string"
   ],
   "solutions": [
-    {
+    {{
       "rank": 1,
       "title": "string",
       "probability": "HIGH | MEDIUM | LOW",
       "root_cause": "string",
       "rationale": "string",
 
-      "automation": {
+      "automation": {{
         "executable": true,
         "agent": "string | null",
         "reason": "string",
         "task": "string | null"
-      },
+      }),
 
-      "human_involvement": {
+      "human_involvement": {(
         "required": false,
         "reason": "string",
         "required_role": "string | null"
-      },
+      }},
 
       "solution": "string",
 
@@ -89,7 +89,7 @@ Return ONLY valid JSON matching the schema below.
       ],
 
       "knowledge_base_reference": "string | null"
-    }
+    }}
   ]
 }}
 
