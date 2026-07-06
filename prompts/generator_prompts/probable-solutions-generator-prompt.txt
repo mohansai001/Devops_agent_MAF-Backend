@@ -62,9 +62,9 @@ Return ONLY valid JSON matching the schema below.
         "agent": "string | null",
         "reason": "string",
         "task": "string | null"
-      }),
+      }},
 
-      "human_involvement": {(
+      "human_involvement": {{
         "required": false,
         "reason": "string",
         "required_role": "string | null"
