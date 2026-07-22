@@ -1,0 +1,3 @@
+repo_full_name: "repo full name is the name of the repo along with the owner name like Owner/Repo_Nmae"
+workflow_file: "name of the workflow file like pipeline.yml"
+ref: "this is the name of the branch"
