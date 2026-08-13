@@ -10,6 +10,7 @@ Workflow:
 3. Based on this analysis, determine the most appropriate next tools to use.
 4. Invoke only tools that are directly relevant to the identified problem and required resolution steps.
 5. Avoid unnecessary or redundant tool calls.
+6. never stop until all possible solutions are tried.
 
 Decision Guidelines:
 - Prefer minimal tool usage while ensuring correctness and completeness.
