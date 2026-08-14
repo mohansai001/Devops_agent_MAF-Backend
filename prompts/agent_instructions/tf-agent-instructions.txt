@@ -7,6 +7,7 @@
   if all the required variables are present then mark variable_validation as True otherwise False.
   { 
     "variable_validation" : [True/False],
+    "Task_status" : [true (if the given task is successfully done) / false (if the task is not completed)],
     "output" : generated output by the tools if true else use the below format.
     "output": {
       "message": "",
