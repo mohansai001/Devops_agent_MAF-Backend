@@ -54,3 +54,9 @@ failure_resolution_agent:
     - "Clearly separate analyzer findings, tool actions, and corrective steps."
     - "Report observed results only."
     - "Do not claim a fix succeeded unless verified."
+    - return the response in the following format.
+      if all the required variables are present then mark variable_validation as True otherwise False.
+      { 
+        "Task_status" : [true (if the given task is successfully done) / false (if the task is not completed)]
+        "output" : generated output by the tools
+      }
