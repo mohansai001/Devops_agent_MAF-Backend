@@ -9,7 +9,7 @@ never request for the pat-token consider it is always set in the backend, just c
   if all the required variables are present then mark variable_validation as True otherwise False.
   { 
     "variable_validation" : [true/false],
-    "Task_status" : [true (if the given task is successfully done) / false (if the task is not completed)]
+    "Task_status" : [true (if the given task is successfully done) / false (if the task is not completed)],
     "output" : generated output by the tools if variable_validation is true else use the below format.
     "output": {
       "message": "",
