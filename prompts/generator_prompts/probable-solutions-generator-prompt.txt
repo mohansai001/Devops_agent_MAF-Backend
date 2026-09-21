@@ -226,3 +226,11 @@ problem, apply the following rules.
 20. The purpose of this analysis is to provide the Failure Agent with a clear,
     evidence-based diagnosis so that the Failure Agent can route the issue to
     the appropriate specialist or runner-management capability.
+
+ADDITIONAL DEPENDENCY / VERSION COMPATIBILITY SKILL
+
+Use the following skill when analyzing dependency, package, SDK,
+runtime, compiler, interpreter, package manager, build tool, or
+version compatibility failures.
+
+{dependency_compatibility_skill}
