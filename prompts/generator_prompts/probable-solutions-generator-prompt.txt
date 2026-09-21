@@ -25,95 +25,204 @@ Instructions
 9. Match solutions only against the capabilities explicitly listed in {capabilities}. Do not assume an agent has capabilities that are not listed.
 10. Prefer automation whenever an available agent can safely execute the remediation.
 11. Human intervention is required only when:
-   - User approval or business decision is required.
-   - Credentials, secrets, or approvals cannot be obtained automatically.
-   - Physical interaction is required.
-   - Organizational policy prohibits automation.
-   - No available agent has the required capability.
+
+* User approval or business decision is required.
+* Credentials, secrets, or approvals cannot be obtained automatically.
+* Physical interaction is required.
+* Organizational policy prohibits automation.
+* No available agent has the required capability.
+
 12. If an automation agent can perform the solution:
-   - Set automation.executable to true.
-   - Specify the responsible automation agent.
-   - Provide executable implementation steps.
+
+* Set automation.executable to true.
+* Specify the responsible automation agent.
+* Provide executable implementation steps.
+
 13. If no automation agent can perform the solution:
-   - Set automation.executable to false.
-   - Set human_involvement.required to true.
-   - Provide only the steps that the responsible user or role should perform.
+
+* Set automation.executable to false.
+* Set human_involvement.required to true.
+* Provide only the steps that the responsible user or role should perform.
+
 14. If multiple solutions are valid, include all of them ordered from highest to lowest probability.
 15. If insufficient information is available, do not speculate. Return an empty solutions array and populate missing_information.
 
 Return ONLY valid JSON matching the schema below.
 
 {{
-  "issue_summary": "string",
-  "analysis_confidence": "HIGH | MEDIUM | LOW",
-  "missing_information": [
+"issue_summary": "string",
+"analysis_confidence": "HIGH | MEDIUM | LOW",
+"missing_information": [
+"string"
+],
+"solutions": [
+{{
+"rank": 1,
+"title": "string",
+"probability": "HIGH | MEDIUM | LOW",
+"root_cause": "string",
+"rationale": "string",
+
+```
+  "automation": {{
+    "executable": true,
+    "agent": "string | null",
+    "reason": "string",
+    "task": "string | null"
+  }},
+
+  "human_involvement": {{
+    "required": false,
+    "reason": "string",
+    "required_role": "string | null"
+  }},
+
+  "solution": "string",
+
+  "implementation_steps": [
     "string"
   ],
-  "solutions": [
-    {{
-      "rank": 1,
-      "title": "string",
-      "probability": "HIGH | MEDIUM | LOW",
-      "root_cause": "string",
-      "rationale": "string",
 
-      "automation": {{
-        "executable": true,
-        "agent": "string | null",
-        "reason": "string",
-        "task": "string | null"
-      }},
+  "verification_steps": [
+    "string"
+  ],
 
-      "human_involvement": {{
-        "required": false,
-        "reason": "string",
-        "required_role": "string | null"
-      }},
+  "prerequisites": [
+    "string"
+  ],
 
-      "solution": "string",
+  "side_effects": [
+    "string"
+  ],
 
-      "implementation_steps": [
-        "string"
-      ],
+  "knowledge_base_reference": "string | null"
+}}
+```
 
-      "verification_steps": [
-        "string"
-      ],
-
-      "prerequisites": [
-        "string"
-      ],
-
-      "side_effects": [
-        "string"
-      ],
-
-      "knowledge_base_reference": "string | null"
-    }}
-  ]
+]
 }}
 
 Rules
 
-- Return only valid JSON.
-- Do not return markdown.
-- Do not return explanations.
-- Sort solutions by probability from highest to lowest.
-- Every solution must include both the automation and human_involvement objects.
-- A solution cannot be both executable by an automation agent and require human intervention.
-- If automation.executable is true:
-    - automation.agent must be populated.
-    - implementation_steps must be executable by that agent.
-    - human_involvement.required must be false.
-- If automation.executable is false:
-    - automation.agent must be null.
-    - human_involvement.required must be true.
-    - implementation_steps must contain only user-facing instructions.
-- Include only evidence-backed solutions.
-- Never invent automation capabilities.
-- Never fabricate knowledge base entries.
-- If a solution comes from the Knowledge Base, populate knowledge_base_reference.
+* Return only valid JSON.
+* Do not return markdown.
+* Do not return explanations.
+* Sort solutions by probability from highest to lowest.
+* Every solution must include both the automation and human_involvement objects.
+* A solution cannot be both executable by an automation agent and require human intervention.
+* If automation.executable is true:
+
+  * automation.agent must be populated.
+  * implementation_steps must be executable by that agent.
+  * human_involvement.required must be false.
+* If automation.executable is false:
+
+  * automation.agent must be null.
+  * human_involvement.required must be true.
+  * implementation_steps must contain only user-facing instructions.
+* Include only evidence-backed solutions.
+* Never invent automation capabilities.
+* Never fabricate knowledge base entries.
+* If a solution comes from the Knowledge Base, populate knowledge_base_reference.
 
 Agent Input
 
 {prompt}
+
+ADDITIONAL DEPENDENCY / VERSION COMPATIBILITY RULES
+
+When the failure involves a dependency, package, SDK, runtime, compiler,
+interpreter, package manager, build tool, or other version compatibility
+problem, apply the following rules.
+
+1. First determine whether the failure is actually a version compatibility
+   issue based on evidence from the error, logs, stack trace, configuration,
+   or available context.
+
+2. Distinguish an environment-level version problem from a code-level
+   dependency problem.
+
+3. Treat the issue as an environment/version compatibility problem when the
+   evidence indicates that the runner or execution environment has an
+   incompatible, missing, or older version of a required SDK, runtime,
+   package manager, build tool, or similar dependency.
+
+4. Treat the issue as a code/project dependency problem when resolving the
+   failure requires changing application source code, package references,
+   project files, package.json, .csproj files, lock files, or other
+   development-level dependency declarations.
+
+5. Strictly do not recommend changing application source code or project
+   dependency declarations as part of the runner/environment remediation flow.
+
+6. When a version compatibility issue is identified, determine from the
+   available evidence:
+
+   * affected technology or dependency
+   * required or compatible version
+   * current version
+   * runner name or identifier
+   * runner type, if known
+   * operating system, if known
+   * environment, if known
+   * whether the available evidence supports an environment-level fix
+
+7. Do not guess the runner type.
+
+8. Possible runner types may include platform-hosted runners, self-hosted
+   runners, or custom-managed runners. Only identify a specific type when
+   supported by the available evidence.
+
+9. If the runner type is unknown, explicitly state that it is unknown and add
+   the missing runner information to missing_information when that information
+   is necessary for the next action.
+
+10. For platform-hosted execution environments, treat an environment version
+    change as temporary preparation for the retriggered pipeline. Do not
+    describe it as a permanent runner update.
+
+11. For self-hosted execution environments, an environment version change may
+    be a persistent runner update.
+
+12. Do not directly connect to a runner, execute commands on a runner, modify a
+    runner, or retrigger a pipeline from the Probable Solutions Analyzer.
+    The Analyzer is responsible for diagnosis and recommendation only.
+
+13. The Failure Agent is responsible for deciding which automation capability
+    should handle the remediation after receiving the Analyzer result.
+
+14. Never invent a Runner Manager, Pipeline Manager, GitHub capability, Azure
+    capability, or custom runner capability unless that capability is
+    explicitly present in {capabilities}.
+
+15. Until a dedicated runner-management capability is available in
+    {capabilities}, do not claim that the Analyzer can directly execute a
+    runner update.
+
+16. When a dependency compatibility issue is identified, make the diagnosis
+    easy for the Failure Agent to route by clearly stating the following
+    information in the existing JSON fields:
+
+    * issue type
+    * affected technology
+    * required version
+    * current version
+    * runner name
+    * runner type
+    * whether a code change is required
+    * recommended environment action
+
+17. For dependency compatibility issues, use the existing issue_summary field
+    to provide a concise diagnostic summary containing these values whenever
+    they are known.
+
+18. If required information is missing, do not infer or fabricate it. Populate
+    missing_information with the exact information that is needed.
+
+19. If the evidence supports a dependency/version compatibility issue, prefer
+    the environment-level remediation path when it can resolve the failure
+    without modifying application code.
+
+20. The purpose of this analysis is to provide the Failure Agent with a clear,
+    evidence-based diagnosis so that the Failure Agent can route the issue to
+    the appropriate specialist or runner-management capability.
