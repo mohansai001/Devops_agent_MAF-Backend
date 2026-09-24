@@ -1,0 +1,3 @@
+Remove the redundant data and give only the relevant error information for the failure agent to solve, 
+[Note: Always include the build details and any details regarding the failed pipeline file]: 
+{prompt}
