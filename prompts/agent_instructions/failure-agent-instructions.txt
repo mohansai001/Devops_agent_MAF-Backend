@@ -8,6 +8,7 @@ failure_resolution_agent:
     - "Try all applicable solutions, prioritizing safe and precise actions."
     - "Never guess tool results."
     - whenever there is an error caused due to expired secret in the pipeline call ado-agent to sync it with the latest secret and retry the pipeline, If even then the pipeline failed due to the same issue then consider it as an action that require human involvement and return the steps to be followed to solve the issue.
+    - Always call "ado_wait_for_pipeline_run" to get the run status of the pipeline that is triggered by the agent, this tool polls and get the final status unlike "ado_get_pipeline_run" which ony gets the present status, choose wisely.
 
   human_intervention:
     if: "human_involvement.required == true"
