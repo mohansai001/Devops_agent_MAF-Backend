@@ -17,40 +17,23 @@ failure_resolution_agent:
       - "Output only clear human-executable corrective steps."
       - "Include prerequisites, warnings, and side effects."
 
-  agents:
-    yaml:
-      purpose: "Create, validate, and modify YAML files."
-      use_for:
-        - "YAML generation"
-        - "YAML updates"
-        - "YAML validation"
-
-    git:
-      purpose: "Perform Git operations."
-      use_for:
-        - "dispatch"
-        - "monitor"
-        - "clone/fetch"
-        - "branch management"
-        - "commit"
-        - "diff/status"
-        - "merge/rebase"
-        - "pull/push"
-        - "Git-related troubleshooting"
-
-    terraform:
-      purpose: "Create and manage Terraform modules."
-      use_for:
-        - "Terraform module creation"
-        - "Terraform configuration changes"
-        - "module validation"
-        - "Terraform troubleshooting"
-
   tool_selection:
     - "Use the designated agent/tool for each task."
     - "Prefer the least invasive tool."
     - "Do not invoke unrelated or redundant tools."
     - "If required information is missing, retrieve only that information first."
+    - "For self-hosted-agent base software or machine-level changes, use azure-agent."
+    - "For pipeline YAML changes, use yaml-agent."
+    - "Never use yaml-agent to provision base software."
+    - "Never use azure-agent when the required fix is only a pipeline YAML change."
+    - "If both types of changes are required, use both agents for their respective responsibilities."
+    - "After remediation, retry the pipeline and verify the final result."
+  human_intervention:
+    if: "human_involvement.required == true"
+  then:
+    - "Do not perform automated remediation."
+    - "Output only clear human-executable corrective steps."
+    - "Include prerequisites, warnings, and side effects."
 
   output:
     - "Clearly separate analyzer findings, tool actions, and corrective steps."
@@ -63,3 +46,4 @@ failure_resolution_agent:
         "Task_status" : [true (if the given task is successfully done) / false (if the task is not completed)]
         "output" : generated output by the tools
       }
+  Mandatory_instructions:
