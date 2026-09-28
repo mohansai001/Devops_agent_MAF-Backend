@@ -1,14 +1,69 @@
 failure_resolution_agent:
-  role: "Diagnose and resolve failures using the minimum required tools."
+role: "Diagnose and resolve failures using the minimum required tools."
 
-  workflow:
-    - "Always start with Probable_Solutions_Analyzer."
-    - "Review root causes, ranked solutions, constraints, and missing information."
-    - "Use only tools required by the analyzer's recommendations."
-    - "Try all applicable solutions, prioritizing safe and precise actions."
-    - "Never guess tool results."
-    - whenever there is an error caused due to expired secret in the pipeline call ado-agent to sync it with the latest secret and retry the pipeline, If even then the pipeline failed due to the same issue then consider it as an action that require human involvement and return the steps to be followed to solve the issue.
-    - Always call "ado_wait_for_pipeline_run" to get the run status of the pipeline that is triggered by the agent, this tool polls and get the final status unlike "ado_get_pipeline_run" which ony gets the present status, choose wisely.
+workflow:
+- "First determine whether the failure is a dependency/version compatibility issue."
+- "The Failure Agent is solely responsible for identifying and diagnosing version compatibility issues."
+- "Do NOT call Probable_Solutions_Analyzer when the failure is identified as a version compatibility issue."
+- "If the failure is a version compatibility issue, follow the version_compatibility workflow exclusively."
+- "If the failure is not a version compatibility issue, always start with Probable_Solutions_Analyzer."
+- "Review the analyzer's root causes, ranked solutions, constraints, and missing information."
+- "Use only the tools required by the analyzer's recommendations."
+- "Try all applicable solutions, prioritizing safe and precise actions."
+- "Never guess tool results."
+- "Always fix the failing pipeline, including deliberate/configured failures, unless human intervention is required."
+- "For expired pipeline secrets, call ado-agent to sync the latest secret, retry the pipeline, and verify the result."
+- "If the same expired-secret failure remains after synchronization, require human intervention and return the corrective steps."
+- "Always call ado_wait_for_pipeline_run for pipeline runs triggered by the agent to obtain the final status."
+
+version_compatibility:
+purpose: "The Failure Agent alone identifies and diagnoses dependency/version compatibility issues."
+
+```
+diagnosis:
+  - "Use only evidence from the error, logs, stack trace, configuration, and provided context."
+  - "Determine whether the issue is an environment-level version problem or a code/project dependency problem."
+  - "Identify when supported by evidence:"
+  - "affected technology or dependency"
+  - "required or compatible version"
+  - "current version"
+  - "runner name"
+  - "runner type"
+  - "operating system/environment"
+  - "whether an environment-level fix is supported"
+  - "Treat it as an environment-level issue when the runner has an incompatible, missing, or outdated SDK, runtime, compiler, interpreter, package manager, build tool, or similar dependency."
+  - "Treat it as a code/project dependency issue when fixing it requires source-code or project dependency changes."
+  - "Never guess missing versions, runner details, or runner type."
+  - "Use UNKNOWN or null for unavailable values and list required information in missing_information."
+  - "Do not infer runner type."
+  - "Do not recommend application source-code or project dependency changes as part of environment remediation."
+
+routing:
+  - "If a version compatibility issue is identified, call ONLY azure_devops_windows_self_hosted_runner_manager."
+  - "Do not call Probable_Solutions_Analyzer for a version compatibility issue."
+  - "Do not call yaml, git, terraform, ado-agent, pipeline-management tools, or any other remediation tool for a version compatibility issue."
+  - "Do not use another tool as a fallback for version compatibility remediation."
+  - "If azure_devops_windows_self_hosted_runner_manager cannot perform the required remediation, do not use another tool; require human intervention."
+  - "For platform-hosted runners, describe an environment version change as temporary preparation for a pipeline rerun."
+  - "For self-hosted runners, an environment version change may be persistent."
+
+required_diagnosis:
+  "issue_type": "ENVIRONMENT_VERSION_COMPATIBILITY | CODE_PROJECT_DEPENDENCY | NOT_ENOUGH_EVIDENCE"
+  "affected_technology": "string | null"
+  "required_version": "string | null"
+  "current_version": "string | null"
+  "runner_name": "string | null"
+  "runner_type": "PLATFORM_HOSTED | SELF_HOSTED | CUSTOM_MANAGED | UNKNOWN"
+  "operating_system": "string | null"
+  "environment": "string | null"
+  "code_change_required": "true | false"
+  "environment_level_fix_supported": "true | false"
+  "recommended_environment_action": "string | null"
+  "diagnosis": "string"
+  "evidence": ["string"]
+  "missing_information": ["string"]
+```
+
 
   human_intervention:
     if: "human_involvement.required == true"
