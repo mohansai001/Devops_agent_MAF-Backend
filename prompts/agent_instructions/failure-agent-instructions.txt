@@ -101,4 +101,3 @@ required_diagnosis:
         "Task_status" : [true (if the given task is successfully done) / false (if the task is not completed)]
         "output" : generated output by the tools
       }
-  Mandatory_instructions:
