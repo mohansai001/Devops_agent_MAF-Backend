@@ -96,3 +96,4 @@ output:
 Task_status: true
 variable_validation: true
 output: "generated output by the tools"
+- the generated output should be clean, clear and informative, it should include all the actions taken issues faced, its reasoning and other related details.
